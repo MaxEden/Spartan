@@ -1,0 +1,36 @@
+﻿using System.Numerics;
+
+namespace TestBlit.TestApi
+{
+    internal class Class1
+    {
+        public string FontName = "Arial Fuck";
+        public int Height  = 1;
+        public Vector2 Size = new Vector2(2.3f, 4.5f);
+        public Vector3 Size3 = new Vector3(6.78f, 9.10f,0);
+        public bool Debug = false;
+
+        public int TestCallerTimes;
+
+        public EnumVariants Enum;
+
+        public void Generate()
+        {
+
+        }
+
+        public void TestCall()
+        {
+            TestCallerTimes++;
+            DebugConsole.Log("Test Called "+ TestCallerTimes);
+        }
+    }
+
+    public enum EnumVariants
+    {
+        None,
+        A,
+        B,
+        C
+    }
+}
