@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
 using Nui;
 using SFML.Graphics;
@@ -98,10 +95,10 @@ public class SfmlBlitter : Blitter
         _defaultWindow.Draw(sprite);
 
 
-        foreach (var item in Layout.Popups._popupMasks)
-        {
-            DrawRectRaw(item, new Color32(255, 0, 255, 200), false);
-        }
+        //foreach (var item in Layout.Popups._popupMasks)
+        //{
+        //    DrawRectRaw(item, new Color32(255, 0, 255, 200), false);
+        //}
 
         Layout.End();
 

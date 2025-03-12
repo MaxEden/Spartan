@@ -15,13 +15,14 @@ namespace TestProgram
         private Class1 testObj;
         private Inspector inpector;
         private DebugConsole console;
+        private Menu menu;
         public Blitter blitter { get; set; }
         public Input input { get; set; }
         public Vector2 viewSize { get; set; }
         
         public void Create() {
 
-            var menu = new Menu("File", "Edit", "Assets", "GameObject", "Component", "Window", "Help");
+            menu = new Menu("File", "Edit", "Assets", "GameObject", "Component", "Window", "Help");
             menu.Add("New", "Open", "Save", "Save as", "Quit");
 
             testObj = new Class1();
@@ -45,7 +46,7 @@ namespace TestProgram
             //    menu.Draw(new Rect(0, 20*i, viewSize.X, 20), blitter, input);
             //}
 
-            // menu.Draw(new Rect(0, 0, viewSize.X, 20), blitter, input);
+            menu.Draw(new Rect(0, 0, viewSize.X, 20), blitter, input);
 
             inpector.Draw(new Rect(viewSize.X - 200, 40, 200, viewSize.Y), blitter, input, testObj);
 

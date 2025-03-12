@@ -11,7 +11,7 @@ namespace TestBlit;
 
 public class WebBlitter : Blitter
 {
-    Vector2 viewSize { get; set; }
+    public Vector2 viewSize { get; set; }
 
     private byte[] _textBytes;
     private MemoryStream _stream;

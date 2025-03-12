@@ -1,4 +1,5 @@
-﻿using TestBlit;
+﻿using System.Numerics;
+using TestBlit;
 using TestBlit.WebUI;
 
 namespace Spartan.Web
@@ -23,6 +24,7 @@ namespace Spartan.Web
             server.Start();
 
             program.Create();
+           
 
             while (true)
             {
@@ -30,8 +32,11 @@ namespace Spartan.Web
                 {
                     break;
                 }
-
+                program.viewSize = new Vector2(1000, 500);
+                blitter.viewSize = program.viewSize;
                 program.Update();
+
+                server.TrySend();
             }
         }
     }

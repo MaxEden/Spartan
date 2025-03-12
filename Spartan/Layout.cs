@@ -129,7 +129,7 @@ namespace TestBlit
             //Clip.FlipMasks();
         }
 
-        internal Vector2 ToScreen(Vector2 pos)
+        public Vector2 ToScreen(Vector2 pos)
         {
             if (layer.IsClipping)
             {
@@ -139,7 +139,7 @@ namespace TestBlit
             return pos;
         }
 
-        internal Rect ToScreen(Rect rect)
+        public Rect ToScreen(Rect rect)
         {
             if (layer.IsClipping)
             {

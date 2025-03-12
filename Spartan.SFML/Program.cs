@@ -1,10 +1,7 @@
-﻿using System;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.Window;
 using System.Numerics;
 using Nui;
-using TestBlit.TestApi;
-using TestBlit.WebUI;
 using Color = SFML.Graphics.Color;
 
 namespace TestBlit
@@ -115,6 +112,8 @@ namespace TestBlit
             program.blitter = blitter;
             program.input = input;
             blitter.Input = input;
+
+            program.Create();
 
             while (window.IsOpen)
             {
