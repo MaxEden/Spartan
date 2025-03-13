@@ -64,7 +64,7 @@ class Connection
                     break;
                 case PointerEventType.Scrolled:
                     float delta = reader.ReadInt16();
-                    Input.PointerEvent(new Vector2(0, delta), PointerEventType.Scrolled);
+                    Input.PointerEvent(new Vector2(0, -delta), PointerEventType.Scrolled);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

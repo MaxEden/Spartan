@@ -6,8 +6,6 @@ namespace Spartan
 {
     public class Layout
     {
-        public int charW = 6;
-        public int charH = 12;
         public Vector2 ViewSize { get; set; }
 
         internal Rect _defaultArea;
@@ -29,7 +27,6 @@ namespace Spartan
         {
             _defaultPointerPos = input.DefaultPointer.Position;
             _defaultArea = defaultArea;
-            //CurrentArea = _defaultArea;
 
             CursorDepth = 0;
             if (Popups.Check(_defaultPointerPos))
@@ -38,10 +35,6 @@ namespace Spartan
             }
 
             Popups.FlipMasks();
-            //else if (Clip.Check(_defaultPointerPos))
-            //{
-            //    CursorDepth = -1;
-            //}
 
             layer = defaultLayer;
 
@@ -73,11 +66,6 @@ namespace Spartan
 
         public void TryAddMask(Rect rect)
         {
-            //if (IsClipping)
-            //{
-            //    Clip.TryAddMask(rect);
-            //}
-
             if (IsPoppingUp)
             {
                 var rect2 = ToScreen(rect);
@@ -92,12 +80,6 @@ namespace Spartan
 
         public Rect Intersect(Rect input, Rect area) 
         {
-            //return Rect.MinMaxRect(
-            //    Mathf.Clamp(input.X, area.X, area.xMax),
-            //    Mathf.Clamp(input.Y, area.Y, area.yMax),
-            //    Mathf.Clamp(input.xMax, area.X, area.xMax),
-            //    Mathf.Clamp(input.yMax, area.Y, area.yMax));
-
             float axMin = area.X;
             float axMax = area.X + area.Width;
             float ayMin = area.Y;
@@ -117,20 +99,13 @@ namespace Spartan
             };
         }
 
-        //public bool IsClipping;
-
-        //public Rect CurrentArea;
         public int CursorDepth;
         public MaskLayer Popups = new MaskLayer();
-        //public Layer Clip = new Layer();
-        //internal Rect ClipArea;
         public bool IsPoppingUp;
 
         public Scroll Scroll = new Scroll();
         public void End()
         {
-            //Popups.FlipMasks();
-            //Clip.FlipMasks();
         }
 
         public Vector2 ToScreen(Vector2 pos)
@@ -191,7 +166,6 @@ namespace Spartan
 
     public class MaskLayer
     {
-        public int Depth;
         public List<Rect> _popupMasks = new List<Rect>();
         internal void FlipMasks()
         {

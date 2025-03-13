@@ -21,11 +21,6 @@ public class EnumDropdown
 
         for (int j = 0; j < Values.Length; j++)
         {
-            //var rect = new Rect(Rect.X,
-            //    Rect.Y + j * Rect.Height,
-            //    Rect.Width,
-            //    Rect.Height);
-
             var rect = new Rect(0,
                 0 + j * Rect.Height,
                 Rect.Width,

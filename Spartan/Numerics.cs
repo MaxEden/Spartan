@@ -105,8 +105,8 @@ namespace Spartan
 
         public bool Contains(Rect rect)
         {
-            return X <= rect.X && X + Width >= rect.X + rect.Width
-                               && Y <= rect.Y && Y + Height >= rect.Y + rect.Height;
+            return X <= rect.X && X + Width >= rect.X + rect.Width &&
+                   Y <= rect.Y && Y + Height >= rect.Y + rect.Height;
         }
 
         public override string ToString()

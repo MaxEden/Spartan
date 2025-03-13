@@ -11,11 +11,17 @@
 
     const dpr = window.devicePixelRatio || 1;
 
-    var canvas = document.getElementById("myCanvas");    
-    var ctx = canvas.getContext("2d");
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx1 = canvas.getContext("2d");
 
     var canvas2 = document.getElementById("popupCanvas");
     var ctx2 = canvas2.getContext("2d");
+
+    var ctx = ctx1;
+    var IsPoppingUp = false;
+    var popupMasks = [];
+    var cursorDepth = 0;
 
     var mouseX = 0;
     var mouseY = 0;
@@ -28,6 +34,8 @@
         _scrollRect;
         _defaultPointerPosX;
         _defaultPointerPosY;
+        isClipping;
+        ClipInnerArea;
 
         constructor() {
             this._scrollArea = new Rect();
@@ -35,20 +43,27 @@
             this._scrollPos = 0;
             this._scrollIsActive = false;
             this._scrollRect = new Rect();
+            this.ClipInnerArea = new Rect();
+            this.isClipping = false;
         }
 
         GetScrollRect() {
             if (this._scrollHeight > this._scrollArea.height) {
-                var pos = this._scrollPos / this._scrollHeight;
-                var part = this._scrollArea.height / this._scrollHeight;
 
-                var length = part * this._scrollArea.height;
-                var bit = this._scrollArea.height - length;
+                var area = this._scrollArea;
+                var height = this._scrollHeight;
 
-                this._scrollRect.X = this._scrollArea.X + this._scrollArea.width - 10;
-                this._scrollRect.Y = this._scrollArea.Y + bit * pos;
-                this._scrollRect.width = 10;
-                this._scrollRect.height = length;
+                var maxShift = height - area.height;
+                var scrollHeight = area.height * (area.height / height);
+                var scrollHole = area.height - scrollHeight;
+                var t = this._scrollPos / maxShift;
+
+                this._scrollRect = new Rect(
+                    area.x + area.width - 10,
+                    area.y + t * scrollHole,
+                    10,
+                    scrollHeight
+                );
 
                 return true;
             }
@@ -64,15 +79,15 @@
         height;
 
         constructor(x, y, width, height) {
-            this.X = x;
-            this.Y = y;
+            this.x = x;
+            this.y = y;
             this.width = width;
             this.height = height;
         }
 
         Contains(posx, posy) {
-            return posx >= this.X && posx < this.X + this.width
-                && posy >= this.Y && posy < this.Y + this.height;
+            return posx >= this.x && posx < this.x + this.width
+                && posy >= this.y && posy < this.y + this.height;
         }
     }
 
@@ -86,59 +101,76 @@
         canvas.width = window.innerWidth * dpr;
         canvas.height = window.innerHeight * dpr + 1;
 
-        drawReader();
-    }
-
-    onmousemove = function (e) {
-        //const dpr = window.devicePixelRatio || 1;
-        var mouseX1 = Math.floor(e.clientX * dpr);
-        var mouseY1 = Math.floor(e.clientY * dpr);
-
-        if (mouseX1 == mouseX && mouseY1 == mouseY) return;
-
-        mouseX = mouseX1;
-        mouseY = mouseY1;
+        canvas2.width = canvas.width;
+        canvas2.height = canvas.height;
 
         drawReader();
-
-        if (socket.readyState == socket.OPEN) {
-            const buffer = new ArrayBuffer(24000);
-            var writer = new Writer(buffer);
-            writer.WriteByte(ClientEvent.Pointer);
-            writer.WriteByte(PointerEventType.Moved);
-            writer.WriteShort(mouseX);
-            writer.WriteShort(mouseY);
-            var sendBuffer = writer.ToArray();
-            socket.send(sendBuffer);
-        }
     }
 
-    onwheel = function (e) {
-        if (socket.readyState == socket.OPEN) {
-            const buffer = new ArrayBuffer(24000);
-            var writer = new Writer(buffer);
-            writer.WriteByte(ClientEvent.Pointer);
-            writer.WriteByte(PointerEventType.Scrolled);
-            writer.WriteShort(e.deltaY);
-            var sendBuffer = writer.ToArray();
-            socket.send(sendBuffer);
-        }
+    function FlipMasks() {
+        popupMasks.length = 0;
     }
 
-    function drawRect2(rect, r, g, b, a) {
-        ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
-        ctx.fillRect(rect.X, rect.Y, rect.width, rect.height);
+    function CheckMask(mouseX, mouseY)
+    {
+        for (let i = 0; i < popupMasks.length; i++) {
+            if (Contains(popupMasks[i], mouseX, mouseY)) return true;
+        }
+
+        return false;
+    }
+
+    function TryAddMask(rect) {
+        if (!IsPoppingUp) return;
+
+        if (scroll.isClipping) {
+            var newRect = new Rect(
+                rect.x + scroll.ClipInnerArea.x,
+                rect.y + scroll.ClipInnerArea.y,
+                rect.width,
+                rect.height);
+
+            rect = Intersect(newRect, scroll._scrollArea);
+        }
+
+        for (let i = 0; i < popupMasks.length; i++) {
+            if (ContainsRect(popupMasks[i], rect)) return true;
+        }
+
+        popupMasks.push(rect);
+    }
+
+    function Hovers(rect)
+    {
+        if (IsPoppingUp != (cursorDepth == 1)) return false;
+        return Contains(rect, mouseX, mouseY)
+    }
+
+    function drawRect2(rect, color) {
+        drawRect(rect.x, rect.y, rect.width, rect.height, color.r, color.g, color.b, color.a);
     }
 
     function drawRect(x, y, width, height, r, g, b, a) {
         ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fillRect(x, y, width, height);
+        TryAddMask(new Rect(x, y, width, height));
     }
 
     function drawReader() {
         if (drawBufferSize == null || drawBuffer == null) return;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        cursorDepth = 0;
+        if (CheckMask(mouseX, mouseY)) {
+            cursorDepth = 1;
+        }
+
+        IsPoppingUp = false;
+
+        FlipMasks();
+
+        ctx1.clearRect(0, 0, canvas.width, canvas.height);
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        ctx = ctx1;
 
         var reader = new Reader(drawBuffer);
         reader.size = drawBufferSize;
@@ -147,39 +179,27 @@
             var command = reader.ReadByte();
             if (command == Command.Rect) {
 
-                var x = reader.ReadShort();
-                var y = reader.ReadShort();
-                var width = reader.ReadShort();
-                var height = reader.ReadShort();
+                var rect = new Rect();
+                reader.ReadRect(rect);
+                var color1 = new Color();
+                reader.ReadColor(color1);
 
-                var r = reader.ReadByte();
-                var g = reader.ReadByte();
-                var b = reader.ReadByte();
-                var a = reader.ReadByte();
-
-                drawRect(x, y, width, height, r, g, b, a);
+                drawRect2(rect, color1);
             }
             else if (command == Command.RectHoverable) {
-                var x = reader.ReadShort();
-                var y = reader.ReadShort();
-                var width = reader.ReadShort();
-                var height = reader.ReadShort();
 
-                var r1 = reader.ReadByte();
-                var g1 = reader.ReadByte();
-                var b1 = reader.ReadByte();
-                var a1 = reader.ReadByte();
+                var rect = new Rect();
+                reader.ReadRect(rect);
+                var color1 = new Color();
+                var color2 = new Color();
+                reader.ReadColor(color1);
+                reader.ReadColor(color2);
 
-                var r2 = reader.ReadByte();
-                var g2 = reader.ReadByte();
-                var b2 = reader.ReadByte();
-                var a2 = reader.ReadByte();
-
-                if (Contains(x, y, width, height, mouseX, mouseY)) {
-                    drawRect(x, y, width, height, r2, g2, b2, a2);
+                if (Hovers(rect)) {
+                    drawRect2(rect, color2);
                 }
                 else {
-                    drawRect(x, y, width, height, r1, g1, b1, a1);
+                    drawRect2(rect, color1);
                 }
             }
             else if (command == Command.Text) {
@@ -244,19 +264,23 @@
                 scroll._scrollHeight = reader.ReadShort();
                 scroll._scrollPos = reader.ReadUshortComp();
                 scroll._scrollIsActive = reader.ReadBool();
+                let area = scroll._scrollArea;
+                scroll.ClipInnerArea = new Rect(area.x, area.y - scroll._scrollPos, area.width, scroll._scrollHeight);
 
                 ctx.save();
                 ctx.beginPath();
-                ctx.rect(scroll._scrollArea.X, scroll._scrollArea.Y, scroll._scrollArea.width, scroll._scrollArea.height);
+                ctx.rect(scroll._scrollArea.x, scroll._scrollArea.y, scroll._scrollArea.width, scroll._scrollArea.height);
                 ctx.clip();
-                ctx.translate(scroll._scrollArea.X, scroll._scrollArea.Y - scroll._scrollPos);
+                ctx.translate(scroll._scrollArea.x, scroll._scrollArea.y - scroll._scrollPos);
+
+                scroll.isClipping = true;
 
                 scroll._defaultPointerPosX = mouseX;
                 scroll._defaultPointerPosY = mouseY;
 
                 if (scroll._scrollArea.Contains(mouseX, mouseY)) {
-                    mouseX -= scroll._scrollArea.X;
-                    mouseY -= scroll._scrollArea.Y - scroll._scrollPos;
+                    mouseX -= scroll._scrollArea.x;
+                    mouseY -= scroll._scrollArea.y - scroll._scrollPos;
                 } else {
                     mouseX = -1;
                     mouseY = -1;
@@ -270,26 +294,58 @@
                 ctx.restore();
                 if (scroll.GetScrollRect()) {
 
-                    if (scroll._scrollIsActive)
-                    {
-                        drawRect2(scroll._scrollRect, 0, 0, 0, 0.75);
+                    if (scroll._scrollIsActive) {
+                        drawRect2(scroll._scrollRect, new Color(0, 0, 0, 0.75));
                     }
-                    else if (scroll._scrollRect.Contains(mouseX, mouseY))
-                    {
-                        drawRect2(scroll._scrollRect, 0, 0, 0, 0.5);
+                    else if (scroll._scrollRect.Contains(mouseX, mouseY)) {
+                        drawRect2(scroll._scrollRect, new Color(0, 0, 0, 0.5));
                     }
-                    else
-                    {
-                        drawRect2(scroll._scrollRect, 0, 0, 0, 0.25);
+                    else {
+                        drawRect2(scroll._scrollRect, new Color(0, 0, 0, 0.25));
                     }
                 }
+
+                scroll.isClipping = false;
+            }
+            else if (command == Command.PopupBegin) {
+                IsPoppingUp = true;
+                ctx = ctx2;
+            }
+            else if (command == Command.PopupEnd) {
+                IsPoppingUp = false;
+                ctx = ctx1;
             }
         }
     }
 
-    function Contains(x, y, width, height, posx, posy) {
-        return posx >= x && posx < x + width
-            && posy >= y && posy < y + height;
+    function Contains(rect, posx, posy) {
+        return posx >= rect.x && posx < rect.x + rect.width
+            && posy >= rect.y && posy < rect.y + rect.height;
+    }
+
+    function ContainsRect(contRect, rect) {
+        return contRect.x <= rect.x && contRect.x + contRect.Width >= rect.x + rect.Width
+            && contRect.y <= rect.y && contRect.y + contRect.Height >= rect.y + rect.Height;
+    }
+
+    function Clamp(value, min, max) {
+        if (value < min) value = min;
+        if (value > max) value = max;
+        return value;
+    }
+
+    function Intersect(input, area) {
+        var axMin = area.x;
+        var axMax = area.x + area.width;
+        var ayMin = area.y;
+        var ayMax = area.y + area.height;
+
+        var xMin = Clamp(input.x, axMin, axMax);
+        var yMin = Clamp(input.y, ayMin, ayMax);
+        var xMax = Clamp(input.x + input.width, axMin, axMax);
+        var yMax = Clamp(input.y + input.height, ayMin, ayMax);
+
+        return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
     }
 
     window.addEventListener("resize", resizeCanvas);
@@ -316,6 +372,42 @@
             writer.WriteByte(ClientEvent.Pointer);
             writer.WriteByte(PointerEventType.Up);
 
+            var sendBuffer = writer.ToArray();
+            socket.send(sendBuffer);
+        }
+    }
+
+    onmousemove = function (e) {
+        //const dpr = window.devicePixelRatio || 1;
+        var mouseX1 = Math.floor(e.clientX * dpr);
+        var mouseY1 = Math.floor(e.clientY * dpr);
+
+        if (mouseX1 == mouseX && mouseY1 == mouseY) return;
+
+        mouseX = mouseX1;
+        mouseY = mouseY1;
+
+        drawReader();
+
+        if (socket.readyState == socket.OPEN) {
+            const buffer = new ArrayBuffer(24000);
+            var writer = new Writer(buffer);
+            writer.WriteByte(ClientEvent.Pointer);
+            writer.WriteByte(PointerEventType.Moved);
+            writer.WriteShort(mouseX);
+            writer.WriteShort(mouseY);
+            var sendBuffer = writer.ToArray();
+            socket.send(sendBuffer);
+        }
+    }
+
+    onwheel = function (e) {
+        if (socket.readyState == socket.OPEN) {
+            const buffer = new ArrayBuffer(24000);
+            var writer = new Writer(buffer);
+            writer.WriteByte(ClientEvent.Pointer);
+            writer.WriteByte(PointerEventType.Scrolled);
+            writer.WriteShort(e.deltaY);
             var sendBuffer = writer.ToArray();
             socket.send(sendBuffer);
         }
@@ -548,10 +640,17 @@
         }
 
         ReadRect(rect) {
-            rect.X = this.ReadShort();
-            rect.Y = this.ReadShort();
+            rect.x = this.ReadShort();
+            rect.y = this.ReadShort();
             rect.width = this.ReadShort();
             rect.height = this.ReadShort();
+        }
+
+        ReadColor(color) {
+            color.r = this.ReadByte();
+            color.g = this.ReadByte();
+            color.b = this.ReadByte();
+            color.a = this.ReadByte();
         }
     }
 
@@ -563,6 +662,8 @@
         static TextSelection = 5;
         static ScrollBegin = 6;
         static ScrollEnd = 7;
+        static PopupBegin = 8;
+        static PopupEnd = 9;
     }
 
     class ClientEvent {
@@ -590,4 +691,17 @@
         static Copy = 7;
     }
 
+    class Color {
+        r;
+        g;
+        b;
+        a;
+
+        constructor(r, g, b, a) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+    }
 </script>

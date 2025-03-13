@@ -8,15 +8,11 @@ public class WebBlitter : IBlitter
 {
     public Vector2 viewSize => Layout.ViewSize;
     public DefaultTextRenderer DefaultTextRenderer = new();
-
-    private byte[] _textBytes;
+    
     private MemoryStream _stream;
     private BinaryWriter _writer;
 
-    public WebBlitter()
-    {      
-        _textBytes = new byte[1000];
-    }
+    public WebBlitter() { }
 
     public Input Input;
     public Layout Layout => Input.Layout;
@@ -196,7 +192,7 @@ public class WebBlitter : IBlitter
         _writer.WriteRect(area);
         _writer.Write((short)Layout.Scroll.Height);
         _writer.WriteUShortComp((int)shiftResult);
-        _writer.Write(Layout.Scroll._scrollIsActive);
+        _writer.Write(Layout.Scroll.IsActive);
 
         return shiftResult;
     }
