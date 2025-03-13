@@ -14,7 +14,7 @@ public interface IBlitter
     void DrawText(Rect rectDest, string text, Align align = Align.Middle);
     float BeginScroll(float shift, Rect area, float height);
     void EndScroll();
-    void Start();
+    void Begin();
     void End();
     void BeginPopup();
     void EndPopup();

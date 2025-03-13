@@ -2,7 +2,7 @@
 {
     public static class Write
     {
-        public static void WriteUShortComp(BinaryWriter writer, int value)
+        public static void WriteUShortComp(this BinaryWriter writer, int value)
         {
             if (value <= 127)
             {
@@ -19,7 +19,7 @@
             }
         }
 
-        internal static void WriteRect(BinaryWriter _writer, Rect rectDest)
+        internal static void WriteRect(this BinaryWriter _writer, Rect rectDest)
         {
             _writer.Write((short)rectDest.X);
             _writer.Write((short)rectDest.Y);
@@ -27,7 +27,7 @@
             _writer.Write((short)rectDest.Height);
         }
 
-        internal static void WriteColor(BinaryWriter _writer, Color32 color)
+        internal static void WriteColor(this BinaryWriter _writer, Color32 color)
         {
             _writer.Write(color.r);
             _writer.Write(color.g);

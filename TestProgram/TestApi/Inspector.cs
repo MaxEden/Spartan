@@ -14,7 +14,7 @@ public class Inspector
     private int _selectionFist;
     private int _selectionSecond;
     private int _caretPos;
-    private EnumDropdown _enumBropdown;
+    private EnumDropdown _enumDropdown;
 
     private bool GetSelection(out int start, out int end)
     {
@@ -140,14 +140,14 @@ public class Inspector
                 var value = fieldInfo.GetValue(target);
                 if (Elements.DrawButton(row2, blitter, input, Enum.GetName(fieldInfo.FieldType, value)))
                 {
-                    _enumBropdown = new EnumDropdown
+                    _enumDropdown = new EnumDropdown
                     {
                         Rect = input.Layout.ToScreen(row2),
                         Values = Enum.GetValues(fieldInfo.FieldType),
                         Selected = p =>
                         {
                             fieldInfo.SetValue(target, p);
-                            _enumBropdown = null;
+                            _enumDropdown = null;
                         }
                     };
                 }
@@ -170,14 +170,14 @@ public class Inspector
             i++;
         }
 
-        if (_enumBropdown != null)
+        if (_enumDropdown != null)
         {
-            _enumBropdown.Draw(blitter, input);
+            _enumDropdown.Draw(blitter, input);
 
             //if(!input.Layout.Popups.Check(input.DefaultPointer.Position) &&               
             //    input.Layout.CursorDepth == 0 && input.DefaultPointer.State == Input.PointerState.GoingUp)
             //{
-            //    _enumBropdown = null;
+            //    _enumDropdown = null;
             //}
         }
     }
@@ -406,58 +406,6 @@ public class Inspector
         }
 
         return false;
-    }
-
-    public Rect AlignMiddle(Vector2 size, Rect rectDst)
-    {
-        var rect = new Rect(rectDst.X, rectDst.Y + (rectDst.Height - size.Y) / 2,
-            rectDst.Width,
-            size.Y
-        );
-        return rect;
-    }
-}
-
-public class EnumDropdown
-{
-    internal Rect Rect;
-    internal Array Values;
-    public Action<object> Selected;
-
-    private float Shift;
-
-    public void Draw(IBlitter blitter, Input input)
-    {
-        blitter.BeginPopup();
-
-        var clipRect = new Rect(Rect.X,
-                Rect.Y,
-                Rect.Width,
-                Rect.Height * 2.5f);
-
-        Shift = blitter.BeginScroll(Shift, clipRect, Rect.Height * Values.Length);
-
-        for (int j = 0; j < Values.Length; j++)
-        {
-            //var rect = new Rect(Rect.X,
-            //    Rect.Y + j * Rect.Height,
-            //    Rect.Width,
-            //    Rect.Height);
-
-            var rect = new Rect(0,
-                    0 + j * Rect.Height,
-                    Rect.Width,
-                    Rect.Height);
-
-            if (Elements.DrawButton(rect, blitter, input, Values.GetValue(j).ToString()))
-            {
-                Selected(Values.GetValue(j));
-                //break;
-            }
-        }
-
-        blitter.EndScroll();
-        blitter.EndPopup();
     }
 }
 

@@ -15,7 +15,7 @@
     var ctx = canvas.getContext("2d");
 
     var canvas2 = document.getElementById("popupCanvas");
-    var ctx2 = canvas.getContext("2d");
+    var ctx2 = canvas2.getContext("2d");
 
     var mouseX = 0;
     var mouseY = 0;
@@ -78,7 +78,7 @@
 
     var scroll = new Scroll();
 
-    var socket = new WebSocket("ws://localhost:4444/");
+    var socket = new WebSocket("ws://" + window.location.hostname + ":4444/");
 
     const textEncoder = new TextEncoder();
 

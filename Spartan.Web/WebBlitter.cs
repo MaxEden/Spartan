@@ -20,7 +20,8 @@ public class WebBlitter : IBlitter
 
     public Input Input;
     public Layout Layout => Input.Layout;
-    public void Start()
+
+    public void Begin()
     {
         _stream = new MemoryStream();
         _writer = new BinaryWriter(_stream);
@@ -45,9 +46,6 @@ public class WebBlitter : IBlitter
 
         TextEvents.Clear();
 
-        _onAfterDrawn = _onDrawn;
-        _onDrawn = null;
-
         _defaultSize = viewSize;
         var defaultArea = new Rect(0, 0, _defaultSize.X, _defaultSize.Y);
 
@@ -66,14 +64,6 @@ public class WebBlitter : IBlitter
 
         _writer.Flush();
         _written = _stream.ToArray(); //22K //8K
-
-        var tmp = _onAfterDrawn;
-        _onAfterDrawn = null;
-
-        if (tmp != null)
-        {
-            tmp.Invoke();
-        }
     }
 
     public void DrawRect(Rect rectDest, Color32 color, CustomRect customRect, Color32 color2)
@@ -85,10 +75,9 @@ public class WebBlitter : IBlitter
         if (customRect == CustomRect.Hoverable)
         {
             _writer.Write((byte)Command.RectHoverable);
-
-            Write.WriteRect(_writer, rectDest);
-            Write.WriteColor(_writer, color);
-            Write.WriteColor(_writer, color2);
+            _writer.WriteRect(rectDest);
+            _writer.WriteColor(color);
+            _writer.WriteColor(color2);
         }
 
         DrawRectRaw(rectDest, colorResult);
@@ -104,8 +93,8 @@ public class WebBlitter : IBlitter
         DrawRectRaw(rectDest, color);
 
         _writer.Write((byte)Command.Rect);
-        Write.WriteRect(_writer, rectDest);
-        Write.WriteColor(_writer, color);
+        _writer.WriteRect(rectDest);
+        _writer.WriteColor(color);
     }
 
     enum Command : byte
@@ -151,14 +140,15 @@ public class WebBlitter : IBlitter
             DrawRectRaw(DefaultTextRenderer.SelectRect.Value, Color32.blue);
         }
 
-        int count = Encoding.ASCII.GetBytes(text, 0, text.Length, _textBytes, 0);
+        DefaultTextRenderer.BuildGliphRects(pos, text);
+
+        int count = DefaultTextRenderer.GliphCount;
 
         _writer.Write((short)count);
 
         for (int i = 0; i < count; i++)
         {
-            int index = _textBytes[i] - 32;
-            Write.WriteUShortComp(_writer, index);
+            _writer.WriteUShortComp(DefaultTextRenderer.GliphsIndexes[i]);
         }
     }
 
@@ -173,14 +163,14 @@ public class WebBlitter : IBlitter
         _writer.Write((short)pos.X);
         _writer.Write((short)pos.Y);
 
-        int count = Encoding.ASCII.GetBytes(text, 0, text.Length, _textBytes, 0);
+        DefaultTextRenderer.BuildGliphRects(pos, text);
+        int count = DefaultTextRenderer.GliphCount;
 
         _writer.Write((short)count);
 
         for (int i = 0; i < count; i++)
         {
-            int index = _textBytes[i] - 32;
-            Write.WriteUShortComp(_writer, index);
+            _writer.WriteUShortComp(DefaultTextRenderer.GliphsIndexes[i]);
         }
     }
 
@@ -196,23 +186,16 @@ public class WebBlitter : IBlitter
     }
 
     public string InputString = String.Empty;
-    private Action _onDrawn;
-    private Action _onAfterDrawn;
     private Vector2 _defaultSize;
-
-    public void OnDrawn(Action action)
-    {
-        _onDrawn = action;
-    }
 
     public float BeginScroll(float shift, Rect area, float height)
     {
         float shiftResult = Layout.BeginScroll(area, shift, height, Input);
 
         _writer.Write((byte)Command.ScrollBegin);
-        Write.WriteRect(_writer, area);
+        _writer.WriteRect(area);
         _writer.Write((short)Layout.Scroll.Height);
-        Write.WriteUShortComp(_writer, (int)shiftResult);
+        _writer.WriteUShortComp((int)shiftResult);
         _writer.Write(Layout.Scroll._scrollIsActive);
 
         return shiftResult;

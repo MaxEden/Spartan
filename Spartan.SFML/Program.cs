@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection;
 using SFML.Graphics;
 using SFML.Window;
 using Spartan;
@@ -14,8 +15,9 @@ namespace Spartan.SFML
 
         static void Main(string[] args)
         {
-           
-            var program = new TestProgram.TestProgram();
+            Resources.LoadAll();
+
+            var program = new TestProgram.TestProgram1();
 
             Console.WriteLine("Hello, World!");
             var mode = new VideoMode(800, 600);
@@ -26,12 +28,8 @@ namespace Spartan.SFML
             window.SetView(new View(new FloatRect(0, 0, windowSize.X * 1f, windowSize.Y * 1f)));
             
             var input = SetupInput(program, window);
-
-            // string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            // var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceNames[0]);
-            // var fontTexture1 = new Texture(stream);
-
-            var fontTexture = new Texture("Resources/font.png");
+            
+            var fontTexture = new Texture(Resources.Loaded["font.png"]);
             var blitter = new SfmlBlitter(window, fontTexture);
 
             program.blitter = blitter;
@@ -55,12 +53,11 @@ namespace Spartan.SFML
                 input.Layout.ViewSize = new Vector2(viewSize.X, viewSize.Y);
 
                 program.Update();
-                
                 window.Display();
             }
         }
 
-        private static Input SetupInput(TestProgram.TestProgram program, RenderWindow window)
+        private static Input SetupInput(TestProgram.TestProgram1 program, RenderWindow window)
         {
             var input = program.input;
             window.Closed += (sender, args) => window.Close();

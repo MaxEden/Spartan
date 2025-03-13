@@ -8,9 +8,7 @@ public static class Elements
         var over = input.Layout.HoversOver(rect, input.Layout.Get_defaultPointerPos());
 
         var clicked = over && input.DefaultPointer.State == Input.PointerState.GoingDown;
-
-        //blitter.DrawRect(rect, over ? new Color(0.7f, 0.7f, 0.7f, 1) : Color.gray);
-
+        
         blitter.DrawRect(rect, Color32.gray, CustomRect.Hoverable, Color32.Float(0.7f, 0.7f, 0.7f, 1));
 
         blitter.DrawText(rect, text, Align.Center);
@@ -24,9 +22,7 @@ public static class Elements
         var over = input.Layout.HoversOver(rect, input.Layout.Get_defaultPointerPos());
         var clicked = over && input.DefaultPointer.State == Input.PointerState.GoingDown;
         var dotRect = Pad.Inside(rect, 4);
-
-        //blitter.DrawRect(rect, over ? Color.gray : Color.black);
-
+        
         blitter.DrawRect(rect, Color32.black, CustomRect.Hoverable, Color32.gray);
         blitter.DrawRect(dotRect, value ? Color32.white : Color32.blue);
 

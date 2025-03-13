@@ -13,7 +13,9 @@
     <EmbeddedResource Include="Resources\fontBlack.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Page.html" />
+    <EmbeddedResource Include="Resources\Page.html">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

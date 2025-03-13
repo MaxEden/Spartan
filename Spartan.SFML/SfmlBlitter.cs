@@ -38,7 +38,7 @@ namespace Spartan.SFML
 
         public Input Input;
         public Layout Layout => Input.Layout;
-        public void Start()
+        public void Begin()
         {
             var view = render.GetView();
             Layout.ViewSize = new Vector2(view.Size.X, view.Size.Y);

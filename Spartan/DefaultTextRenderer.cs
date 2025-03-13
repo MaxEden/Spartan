@@ -83,8 +83,11 @@ namespace Spartan
         
 
         public int GliphCount;
-        public Rect[] GliphsFrom;
-        public Vector2[] GliphsTo;
+        
+        const int DefaultGliphCount = 1000;
+        public Rect[] GliphsFrom = new Rect[DefaultGliphCount];
+        public Vector2[] GliphsTo = new Vector2[DefaultGliphCount];
+        public ushort[] GliphsIndexes = new ushort[DefaultGliphCount];
         private byte[] _textBytes = new byte[1000];
 
         public Vector2 SelectPos;
@@ -97,6 +100,7 @@ namespace Spartan
             GliphCount = count;
             if (GliphsFrom.Length < count) GliphsFrom = new Rect[count * 2];
             if (GliphsTo.Length < count) GliphsTo = new Vector2[count * 2];
+            if (GliphsIndexes.Length < count) GliphsIndexes = new ushort[count * 2];
 
             for (int i = 0; i < count; i++)
             {
@@ -109,6 +113,7 @@ namespace Spartan
                 var resPos = new Vector2(pos.X + i * charW, pos.Y);
                 GliphsFrom[i] = rect;
                 GliphsTo[i] = resPos;
+                GliphsIndexes[i] = (ushort)index;
             }
         }
     }

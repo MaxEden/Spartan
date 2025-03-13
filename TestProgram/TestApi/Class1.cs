@@ -4,7 +4,7 @@ namespace Spartan.TestApi
 {
     internal class Class1
     {
-        public string FontName = "Arial Fuck";
+        public string FontName = "Arial Froot";
         public int Height  = 1;
         public Vector2 Size = new Vector2(2.3f, 4.5f);
         public Vector3 Size3 = new Vector3(6.78f, 9.10f,0);
@@ -14,9 +14,10 @@ namespace Spartan.TestApi
 
         public EnumVariants Enum;
 
+        private Random random = new();
         public void Generate()
         {
-
+            Size3.X = random.NextSingle();
         }
 
         public void TestCall()
