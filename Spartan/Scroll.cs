@@ -1,18 +1,17 @@
 ﻿using System.Numerics;
-using Nui;
 
-namespace TestBlit.TestApi;
+namespace Spartan;
 
 public class Scroll
 {
     public float _scrollPos;
     public Rect _scrollArea;
-    public float _scrollHeight;
+    public float Height;
     //public bool _scrollIsActive;
-    public bool _scrollIsHovered;
-    public bool _scrollRectEnabled;
-    public Rect _scrollRect;
-    public Color32 _scrollColor;
+    public bool IsHovered;
+    public bool ScrollRectEnabled;
+    public Rect ScrollRect;
+    public Color32 Color;
 
     public int _uk;
     public int _focusedId;
@@ -24,7 +23,7 @@ public class Scroll
     {
         _uk++;
         _scrollArea = area;
-        _scrollHeight = height;
+        Height = height;
         _scrollPos = scrollPos;
 
         if (_scrollIsActive && input.DefaultPointer.State == Input.PointerState.GoingUp)
@@ -50,11 +49,11 @@ public class Scroll
 
 
         {
-            _scrollRectEnabled = height > area.Height;
+            ScrollRectEnabled = height > area.Height;
 
             float t = _scrollPos / maxShift;
 
-            _scrollRect = new Rect(
+            ScrollRect = new Rect(
                 area.X + area.Width - 10,
                 area.Y + t * scrollHole,
                 10,
@@ -62,35 +61,35 @@ public class Scroll
                 );
         }
 
-        //_scrollRectEnabled = GetScrollRect(_scrollArea, _scrollHeight, _scrollPos, out _scrollRect);
+        //_scrollRectEnabled = GetScrollRect(_scrollArea, Height, _scrollPos, out _scrollRect);
 
-        _scrollIsHovered = false;
-        if (_scrollRectEnabled)
+        IsHovered = false;
+        if (ScrollRectEnabled)
         {
             if (_scrollIsActive)
             {
-                _scrollColor = new ColorF(0, 0, 0, 0.6f);
+                Color = new ColorF(0, 0, 0, 0.6f);
             }
             else
             {
-                if (_scrollRect.Contains(input.DefaultPointer.Position))
+                if (ScrollRect.Contains(input.DefaultPointer.Position))
                 {
-                    _scrollIsHovered = true;
-                    _scrollColor = new ColorF(0, 0, 0, 0.4f);
+                    IsHovered = true;
+                    Color = new ColorF(0, 0, 0, 0.4f);
                 }
                 else
                 {
-                    _scrollColor = new ColorF(0, 0, 0, 0.25f);
+                    Color = new ColorF(0, 0, 0, 0.25f);
                 }
             }
         }
 
-        if (_scrollIsHovered)
+        if (IsHovered)
         {
             if (input.DefaultPointer.State == Input.PointerState.GoingDown)
             {
                 _focusedId = _uk;
-                _pickShift = input.DefaultPointer.Position.Y -_scrollRect.position.Y;
+                _pickShift = input.DefaultPointer.Position.Y -ScrollRect.position.Y;
             }
         }
 
@@ -117,11 +116,11 @@ public class Scroll
 
     public bool HoversScrollRect(Vector2 pos)
     {
-        //var _scrollRectEnabled = GetScrollRect(_scrollArea, _scrollHeight, _scrollPos, out _scrollRect);
-        return _scrollRectEnabled && _scrollRect.Contains(pos);
+        //var _scrollRectEnabled = GetScrollRect(_scrollArea, Height, _scrollPos, out _scrollRect);
+        return ScrollRectEnabled && ScrollRect.Contains(pos);
     }
 
-    public void EndScroll(Input input)
+    public void EndScroll()
     {
 
     }

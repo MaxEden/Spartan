@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace TestBlit
+namespace Spartan
 {
     public struct Color32
     {

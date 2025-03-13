@@ -4,9 +4,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Nui;
-using TestBlit;
-using TestBlit.TestApi;
+using Spartan;
+using Spartan.TestApi;
 
 namespace TestProgram
 {
@@ -16,9 +15,9 @@ namespace TestProgram
         private Inspector inpector;
         private DebugConsole console;
         private Menu menu;
-        public Blitter blitter { get; set; }
-        public Input input { get; set; }
-        public Vector2 viewSize { get; set; }
+        public IBlitter blitter { get; set; }
+        public Input input { get; } = new Input();
+        public Vector2 viewSize => input.Layout.ViewSize;
         
         public void Create() {
 
@@ -28,7 +27,6 @@ namespace TestProgram
             testObj = new Class1();
             inpector = new Inspector();
             console = new DebugConsole();
-            
         }
 
         public void Update()
@@ -122,8 +120,7 @@ namespace TestProgram
             //     OnityEngine.Color.magenta);
 
             blitter.End();
-
-
+            
             input.PostStep();
         }
     }

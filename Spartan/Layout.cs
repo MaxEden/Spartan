@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
-using TestBlit;
-using TestBlit.TestApi;
+using Spartan;
 
-namespace TestBlit
+namespace Spartan
 {
     public class Layout
     {
+        public int charW = 6;
+        public int charH = 12;
+        public Vector2 ViewSize { get; set; }
 
         internal Rect _defaultArea;
         internal Vector2 _defaultPointerPos;
@@ -23,7 +25,7 @@ namespace TestBlit
 
         public Layer layer;
 
-        public void Start(Rect defaultArea, Nui.Input input)
+        public void Start(Rect defaultArea, Input input)
         {
             _defaultPointerPos = input.DefaultPointer.Position;
             _defaultArea = defaultArea;
@@ -42,6 +44,8 @@ namespace TestBlit
             //}
 
             layer = defaultLayer;
+
+            Scroll.Start();
         }
 
         public Vector2 Get_defaultPointerPos()
@@ -55,7 +59,7 @@ namespace TestBlit
 
             if (layer.IsClipping)
             {
-                if(_scroll.HoversScrollRect(_defaultPointerPos)) return false;
+                if(Scroll.HoversScrollRect(_defaultPointerPos)) return false;
                 if (!layer.ClipOuterArea.Contains(_defaultPointerPos)) return false;
                 if (!rect.Contains(_defaultPointerPos - layer.ClipInnerArea.position)) return false;
             }
@@ -122,7 +126,7 @@ namespace TestBlit
         //internal Rect ClipArea;
         public bool IsPoppingUp;
 
-        public Scroll _scroll = new Scroll();
+        public Scroll Scroll = new Scroll();
         public void End()
         {
             //Popups.FlipMasks();
@@ -165,6 +169,23 @@ namespace TestBlit
         {
             IsPoppingUp = false;
             layer = defaultLayer;
+        }
+
+        public float BeginScroll(Rect area, float shift, float height, Input input)
+        {
+            layer.IsClipping = true;
+            layer.ClipInnerArea = new Rect(area.X, area.Y - shift, area.Width, height);
+            layer.ClipOuterArea = area;
+
+            float shiftResult = Scroll.BeginScroll(area, shift, height, input);
+            return shiftResult;
+        }
+
+        public void EndScroll()
+        {
+            Scroll.EndScroll();
+            //Layout.CurrentArea = Layout._defaultArea;
+            layer.IsClipping = false;
         }
     }
 

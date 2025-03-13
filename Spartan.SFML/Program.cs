@@ -1,10 +1,11 @@
-﻿using SFML.Graphics;
+﻿using System.Numerics;
+using SFML.Graphics;
 using SFML.Window;
-using System.Numerics;
-using Nui;
+using Spartan;
 using Color = SFML.Graphics.Color;
+using sfml =SFML;
 
-namespace TestBlit
+namespace Spartan.SFML
 {
     internal class Program
     {
@@ -13,16 +14,56 @@ namespace TestBlit
 
         static void Main(string[] args)
         {
+           
+            var program = new TestProgram.TestProgram();
+
             Console.WriteLine("Hello, World!");
-            var mode = new SFML.Window.VideoMode(800, 600);
-            var window = new SFML.Graphics.RenderWindow(mode, "SFML works!");
+            var mode = new VideoMode(800, 600);
+            var window = new RenderWindow(mode, "SFML works!");
             window.SetVerticalSyncEnabled(true);
 
             var windowSize = window.Size;
             window.SetView(new View(new FloatRect(0, 0, windowSize.X * 1f, windowSize.Y * 1f)));
-            window.Closed += (sender, args) => window.Close();
+            
+            var input = SetupInput(program, window);
 
-            var input = new Input();
+            // string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            // var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceNames[0]);
+            // var fontTexture1 = new Texture(stream);
+
+            var fontTexture = new Texture("Resources/font.png");
+            var blitter = new SfmlBlitter(window, fontTexture);
+
+            program.blitter = blitter;
+            blitter.Input = input;
+
+            program.Create();
+
+            while (window.IsOpen)
+            {
+                // Process events
+                window.DispatchEvents();
+                window.Clear(Color.Blue);
+
+                if (windowSize != window.Size)
+                {
+                    windowSize = window.Size;
+                    window.SetView(new View(new FloatRect(0, 0, windowSize.X, windowSize.Y)));
+                }
+
+                var viewSize = window.GetView().Size;
+                input.Layout.ViewSize = new Vector2(viewSize.X, viewSize.Y);
+
+                program.Update();
+                
+                window.Display();
+            }
+        }
+
+        private static Input SetupInput(TestProgram.TestProgram program, RenderWindow window)
+        {
+            var input = program.input;
+            window.Closed += (sender, args) => window.Close();
             window.TextEntered += (sender, eventArgs) =>
             {
                 if (eventArgs.Unicode.Length > 2) return;
@@ -65,7 +106,7 @@ namespace TestBlit
 
                 if (eventArgs.Code == Keyboard.Key.V && eventArgs.Control)
                 {
-                    var content = SFML.Window.Clipboard.Contents;
+                    var content = Clipboard.Contents;
 
                     if (!string.IsNullOrEmpty(content))
                     {
@@ -97,42 +138,11 @@ namespace TestBlit
                 }
             };
             window.MouseButtonReleased += (sender, args) => { input.PointerEvent(default, Input.PointerEventType.Up); };
-            window.MouseWheelScrolled += (sender, args) => {
+            window.MouseWheelScrolled += (sender, args) =>
+            {
                 input.PointerEvent(new Vector2(0, 10 * args.Delta), Input.PointerEventType.Scrolled);
             };
-
-            // string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            // var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceNames[0]);
-            // var fontTexture1 = new Texture(stream);
-
-            var fontTexture = new Texture("Resources/font.png");
-            
-            var blitter = new SfmlBlitter(window, fontTexture);
-            var program = new TestProgram.TestProgram();
-            program.blitter = blitter;
-            program.input = input;
-            blitter.Input = input;
-
-            program.Create();
-
-            while (window.IsOpen)
-            {
-                // Process events
-                window.DispatchEvents();
-                window.Clear(Color.Blue);
-
-                if (windowSize != window.Size)
-                {
-                    windowSize = window.Size;
-                    window.SetView(new View(new FloatRect(0, 0, windowSize.X, windowSize.Y)));
-                }
-
-                var viewSize = window.GetView().Size;
-                program.viewSize = new Vector2(viewSize.X, viewSize.Y);
-                program.Update();
-                
-                window.Display();
-            }
+            return input;
         }
     }
 }

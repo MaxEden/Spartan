@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.Numerics;
-using Nui;
 
-namespace TestBlit.TestApi;
+namespace Spartan.TestApi;
 
 public class Inspector
 {
@@ -45,7 +44,7 @@ public class Inspector
         _selectionInProgress = false;
     }
 
-    public void Draw(Rect area, Blitter blitter, Input input, object target)
+    public void Draw(Rect area, IBlitter blitter, Input input, object target)
     {
         _stateId = 0;
 
@@ -183,7 +182,7 @@ public class Inspector
         }
     }
 
-    public bool DrawParsable<T>(Rect area, Blitter blitter, Input input, object val, out T result)
+    public bool DrawParsable<T>(Rect area, IBlitter blitter, Input input, object val, out T result)
         where T : IParsable<T>
     {
         var value = Convert.ToString(val, CultureInfo.InvariantCulture);
@@ -199,7 +198,7 @@ public class Inspector
         return false;
     }
 
-    public bool DrawInput(Rect area, Blitter blitter, Input input, string value)
+    public bool DrawInput(Rect area, IBlitter blitter, Input input, string value)
     {
         _stateId++;
 
@@ -427,7 +426,7 @@ public class EnumDropdown
 
     private float Shift;
 
-    public void Draw(Blitter blitter, Input input)
+    public void Draw(IBlitter blitter, Input input)
     {
         blitter.BeginPopup();
 

@@ -1,10 +1,8 @@
-﻿using Nui;
-
-namespace TestBlit.TestApi;
+﻿namespace Spartan.TestApi;
 
 public static class Elements
 {
-    public static bool DrawButton(Rect area, Blitter blitter, Input input, string text)
+    public static bool DrawButton(Rect area, IBlitter blitter, Input input, string text)
     {
         var rect = Pad.Inside(area, 1);
         var over = input.Layout.HoversOver(rect, input.Layout.Get_defaultPointerPos());
@@ -19,7 +17,7 @@ public static class Elements
 
         return clicked;
     }
-    public static bool DrawToggle(Rect area, Blitter blitter, Input input, bool value)
+    public static bool DrawToggle(Rect area, IBlitter blitter, Input input, bool value)
     {
         var rect = Pad.Inside(area, 2);
 

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace TestBlit.WebUI
+﻿namespace Spartan.Web.WebUI
 {
     public static class Write
     {

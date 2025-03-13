@@ -1,8 +1,7 @@
-﻿using Nui;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 
-namespace TestBlit.TestApi;
+namespace Spartan.TestApi;
 
 class Menu
 {
@@ -23,7 +22,7 @@ class Menu
         _subItems.Add(subitems);
     }
 
-    public void Draw(Rect area, Blitter blitter, Input input)
+    public void Draw(Rect area, IBlitter blitter, Input input)
     {
         float x = 0;
         int index = -1;

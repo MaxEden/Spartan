@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TestBlit.TestApi;
+namespace Spartan.TestApi;
 
 public class DebugConsole
 {
@@ -11,7 +11,7 @@ public class DebugConsole
         Lines.Add(text);
     }
 
-    public void Draw(Rect area, Blitter blitter)
+    public void Draw(Rect area, IBlitter blitter)
     {
         blitter.DrawRect(area, new ColorF(1f,0.5f, 0.5f, 1));
         

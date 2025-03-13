@@ -2,22 +2,21 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.WebSockets;
-using System.Reflection;
-using System.Text;
-using Nui;
-using static Nui.Input;
-using System.Runtime.InteropServices;
-using System.Runtime.CompilerServices;
 using System.Numerics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using static Spartan.Input;
 
-namespace TestBlit.WebUI
+namespace Spartan.Web.WebUI
 {
     internal class Server
     {
         private HttpListener _httpListener;
 
         public WebBlitter Blitter;
-        public Input Input { get; set; }
+        public Input Input => Blitter.Input;
 
         public void Start()
         {
@@ -332,29 +331,28 @@ namespace TestBlit.WebUI
         private void SendToClient(Connection connection)
         {
             var webSocket = connection.WebSocketContext.WebSocket;
-            var span = GetDeltaSIMD(connection._lastSend, out var send, out var size, out var countStartSame, out var countEndSame,
+            var span = GetDeltaSimd(connection._lastSend, out var send, out var size, out var countStartSame, out var countEndSame,
                 out var sendBytes);
 
             if (send)
             {
-                var _stream = new MemoryStream();
-                var _writer = new BinaryWriter(_stream);
-                _writer.Write((ushort)size);//928 
+                var stream = new MemoryStream();
+                var writer = new BinaryWriter(stream);
+                writer.Write((ushort)size);//928 
                 //766
-                _writer.Write((ushort)countStartSame);
-                _writer.Write((ushort)countEndSame);
-                _writer.Write(span);
-                _writer.Flush();
+                writer.Write((ushort)countStartSame);
+                writer.Write((ushort)countEndSame);
+                writer.Write(span);
+                writer.Flush();
 
-                var toSend = _stream.ToArray();
+                var toSend = stream.ToArray();
 
-                var task = webSocket.SendAsync(toSend,
-                    WebSocketMessageType.Binary, true, CancellationToken.None);
+                var task = webSocket.SendAsync(toSend, WebSocketMessageType.Binary, true, CancellationToken.None);
 
                 connection._lastSend = sendBytes;
             }
         }
-        private byte[] GetDeltaSIMD(byte[] _lastSend, out bool send, out int size, out int countStartSame, out int countEndSame, out byte[] sendBytes)
+        private byte[] GetDeltaSimd(byte[] _lastSend, out bool send, out int size, out int countStartSame, out int countEndSame, out byte[] sendBytes)
         {
             sendBytes = Blitter.WrittenBytes.ToArray();
             var lastSend = _lastSend;

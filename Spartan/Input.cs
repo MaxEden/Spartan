@@ -1,8 +1,6 @@
-﻿using System;
-using System.Numerics;
-using TestBlit;
+﻿using System.Numerics;
 
-namespace Nui
+namespace Spartan
 {
     public class Input
     {
@@ -110,5 +108,6 @@ namespace Nui
         }
 
         public Action<string> SetToClipboard;
+        
     }
 }

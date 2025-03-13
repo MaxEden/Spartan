@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using TestBlit;
-using TestBlit.WebUI;
+using Spartan;
+using Spartan.Web.WebUI;
 
 namespace Spartan.Web
 {
@@ -9,18 +9,14 @@ namespace Spartan.Web
         static void Main(string[] args)
         {
             var server = new Server();
-            var input = new Nui.Input();
 
             var blitter = new WebBlitter();
 
             var program = new TestProgram.TestProgram();
             program.blitter = blitter;
-            program.input = input;
-            blitter.Input = input;
+            blitter.Input = program.input;
 
             server.Blitter = blitter;
-            server.Input = input;
-            server.Blitter.Input = input;
             server.Start();
 
             program.Create();
@@ -32,7 +28,7 @@ namespace Spartan.Web
                 {
                     break;
                 }
-                program.viewSize = new Vector2(1000, 500);
+                program.input.Layout.ViewSize = new Vector2(1000, 500);
                 blitter.viewSize = program.viewSize;
                 program.Update();
 

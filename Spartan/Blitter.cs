@@ -1,10 +1,10 @@
 ﻿using System.Numerics;
-namespace TestBlit;
+namespace Spartan;
 
 //Hoverable интерактивный цвет
 //Blinking мигающий цвет
 //Spinner колесо с анимацией
-public interface Blitter
+public interface IBlitter
 {
     void DrawRect(Rect rectDest, Color32 color, CustomRect customRect, Color32 color2);
     void DrawRect(Rect rectDest, Color32 color);

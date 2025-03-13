@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace TestBlit.TestApi
+namespace Spartan.TestApi
 {
     internal class Class1
     {
