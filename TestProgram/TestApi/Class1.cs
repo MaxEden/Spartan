@@ -15,9 +15,11 @@ namespace Spartan.TestApi
         public EnumVariants Enum;
 
         private Random random = new();
-        public void Generate()
+        public void GenerateNewSize3()
         {
             Size3.X = random.NextSingle();
+            Size3.Y = random.NextSingle();
+            Size3.Z = random.NextSingle();
         }
 
         public void TestCall()
