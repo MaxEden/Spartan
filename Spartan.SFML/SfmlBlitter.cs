@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
-using System.Text;
 using SFML.Graphics;
 using SFML.System;
-using Spartan;
 using SColor = SFML.Graphics.Color;
 
 namespace Spartan.SFML

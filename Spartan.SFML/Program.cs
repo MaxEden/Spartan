@@ -1,10 +1,7 @@
 ﻿using System.Numerics;
-using System.Reflection;
 using SFML.Graphics;
 using SFML.Window;
-using Spartan;
 using Color = SFML.Graphics.Color;
-using sfml =SFML;
 
 namespace Spartan.SFML
 {
@@ -18,10 +15,9 @@ namespace Spartan.SFML
             Resources.LoadAll();
 
             var program = new TestProgram.TestProgram1();
-
-            Console.WriteLine("Hello, World!");
+            
             var mode = new VideoMode(800, 600);
-            var window = new RenderWindow(mode, "SFML works!");
+            var window = new RenderWindow(mode, "Spartan");
             window.SetVerticalSyncEnabled(true);
 
             var windowSize = window.Size;

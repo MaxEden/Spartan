@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Spartan;
-using Spartan.Web.WebUI;
+﻿using Spartan.Web.WebUI;
 
 namespace Spartan.Web
 {
@@ -17,7 +15,7 @@ namespace Spartan.Web
                 {
                     break;
                 }
-                
+
                 Thread.Sleep(20);
                 //server.Update();
             }

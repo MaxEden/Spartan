@@ -1,20 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
+﻿using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
-using Spartan;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Spartan
 {
     public class DefaultTextRenderer
     {
-        int charW = 6;
-        int charH = 12;
+        public int charW = 6;
+        public int charH = 12;
+
+        public int GliphCount;
+
+        const int DefaultGliphCount = 1000;
+        public Rect[] GliphsFrom = new Rect[DefaultGliphCount];
+        public Vector2[] GliphsTo = new Vector2[DefaultGliphCount];
+        public ushort[] GliphsIndexes = new ushort[DefaultGliphCount];
+        private byte[] _textBytes = new byte[1000];
+
+        public Vector2 SelectPos;
+        public Rect? SelectRect;
+        public Rect? CoursorRect;
         public Vector2 GetTextLineSize(string text)
         {
             return new Vector2(charW * text.Length, charH);
@@ -79,21 +83,7 @@ namespace Spartan
                 CoursorRect = null;
             }
         }
-
         
-
-        public int GliphCount;
-        
-        const int DefaultGliphCount = 1000;
-        public Rect[] GliphsFrom = new Rect[DefaultGliphCount];
-        public Vector2[] GliphsTo = new Vector2[DefaultGliphCount];
-        public ushort[] GliphsIndexes = new ushort[DefaultGliphCount];
-        private byte[] _textBytes = new byte[1000];
-
-        public Vector2 SelectPos;
-        public Rect? SelectRect;
-        public Rect? CoursorRect;
-
         public void BuildGliphRects(Vector2 pos, string text)
         {
             int count = Encoding.ASCII.GetBytes(text, 0, text.Length, _textBytes, 0);

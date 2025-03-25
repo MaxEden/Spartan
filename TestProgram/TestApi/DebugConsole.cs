@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Spartan.TestApi;
+﻿namespace Spartan.TestApi;
 
 public class DebugConsole
 {

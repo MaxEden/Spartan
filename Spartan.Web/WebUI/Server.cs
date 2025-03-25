@@ -1,14 +1,6 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.WebSockets;
-using System.Numerics;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using static Spartan.Input;
 
 namespace Spartan.Web.WebUI
 {
@@ -21,6 +13,7 @@ namespace Spartan.Web.WebUI
             _httpListener = new HttpListener();
             _httpListener.Prefixes.Add("http://localhost:4444/");
             _httpListener.Start();
+            Console.WriteLine("Service started at: "+ _httpListener.Prefixes.First());
             Receive();
         }
 
@@ -182,13 +175,13 @@ namespace Spartan.Web.WebUI
             }
         }
 
-        public void Update()
-        {
-            foreach (var connection in _connections)
-            {
-                connection.Value.Update();
-            }
-        }
+        //public void Update()
+        //{
+        //    foreach (var connection in _connections)
+        //    {
+        //        connection.Value.Update();
+        //    }
+        //}
     }
 
 }

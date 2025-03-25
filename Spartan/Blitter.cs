@@ -1,9 +1,6 @@
 ﻿using System.Numerics;
 namespace Spartan;
 
-//Hoverable интерактивный цвет
-//Blinking мигающий цвет
-//Spinner колесо с анимацией
 public interface IBlitter
 {
     void DrawRect(Rect rectDest, Color32 color, CustomRect customRect, Color32 color2);
