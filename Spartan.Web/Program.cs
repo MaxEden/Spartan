@@ -17,7 +17,6 @@ namespace Spartan.Web
                 }
 
                 Thread.Sleep(20);
-                //server.Update();
             }
         }
     }

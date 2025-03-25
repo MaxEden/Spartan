@@ -174,14 +174,6 @@ namespace Spartan.Web.WebUI
                 Console.WriteLine("Connection removed: {0}", connection.Id);
             }
         }
-
-        //public void Update()
-        //{
-        //    foreach (var connection in _connections)
-        //    {
-        //        connection.Value.Update();
-        //    }
-        //}
     }
 
 }
