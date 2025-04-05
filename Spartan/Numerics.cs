@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Spartan
 {
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Color32
     {
         public byte r;
@@ -34,8 +36,18 @@ namespace Spartan
                 (byte)(byte.MaxValue * b),
                 (byte)(byte.MaxValue * a));
         }
+
+        public ColorF ToFloat()
+        {
+            return new ColorF(
+                r / (float)byte.MaxValue,
+                g / (float)byte.MaxValue,
+                b / (float)byte.MaxValue,
+                a / (float)byte.MaxValue);
+        }
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ColorF
     {
         public float r;
@@ -61,6 +73,7 @@ namespace Spartan
         }
     }
 
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Rect
     {
         public float X;
@@ -70,8 +83,11 @@ namespace Spartan
 
         public Vector2 position => new Vector2(X, Y);
 
+        public float xMin => X;
+        public float yMin => Y;
         public float xMax => X + Width;
         public float yMax => Y + Height;
+        public Vector2 size => new Vector2(Width, Height);
 
         public Rect(float x, float y, float width, float height)
         {
@@ -123,6 +139,24 @@ namespace Spartan
                 Width = xmax - xmin,
                 Height = ymax - ymin
             };
+        }
+
+
+        public bool Clip(Rect clipRect, out Rect result)
+        {
+            result = default;
+            if (xMax < clipRect.xMin) return false;
+            if (xMin > clipRect.xMax) return false;
+            if (yMax < clipRect.yMin) return false;
+            if (yMin > clipRect.yMax) return false;
+
+            result = MinMaxRect(
+                MathF.Min(clipRect.xMin, xMin),
+                MathF.Min(clipRect.yMin, yMin),
+                MathF.Max(clipRect.xMax, xMax),
+                MathF.Max(clipRect.yMax, yMax)
+            );
+            return true;
         }
     }
 }

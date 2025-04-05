@@ -8,23 +8,24 @@ namespace Spartan.SFML
     internal class Program
     {
         private static float _scroll1;
-        private static bool _stopMoving;
+        //private static bool _stopMoving;
 
         static void Main(string[] args)
         {
             Resources.LoadAll();
 
             var program = new TestProgram.TestProgram1();
-            
+
             var mode = new VideoMode(800, 600);
             var window = new RenderWindow(mode, "Spartan");
             window.SetVerticalSyncEnabled(true);
 
             var windowSize = window.Size;
             window.SetView(new View(new FloatRect(0, 0, windowSize.X * 1f, windowSize.Y * 1f)));
-            
-            var input = SetupInput(program, window);
-            
+
+            SetupInput(program, window);
+            var input = program.input;
+
             var fontTexture = new Texture(Resources.Loaded["font.png"]);
             var blitter = new SfmlBlitter(window, fontTexture);
 
@@ -53,7 +54,7 @@ namespace Spartan.SFML
             }
         }
 
-        private static Input SetupInput(TestProgram.TestProgram1 program, RenderWindow window)
+        private static void SetupInput(TestProgram.TestProgram1 program, RenderWindow window)
         {
             var input = program.input;
             window.Closed += (sender, args) => window.Close();
@@ -116,26 +117,30 @@ namespace Spartan.SFML
             window.MouseLeft += (sender, args) => { input.PointerEvent(default, Input.PointerEventType.Left); };
             window.MouseMoved += (sender, args) =>
             {
-                if (_stopMoving) return;
+                //if (_stopMoving) return;
                 input.PointerEvent(new Vector2(args.X, args.Y), Input.PointerEventType.Moved);
             };
             window.MouseButtonPressed += (sender, args) =>
             {
-                if (args.Button == Mouse.Button.Right)
-                {
-                    _stopMoving = !_stopMoving;
-                }
-                else
-                {
+                //if (args.Button == Mouse.Button.Right)
+                //{
+                //    _stopMoving = !_stopMoving;
+                //}
+                //else
+                //{
                     input.PointerEvent(default, Input.PointerEventType.Down);
-                }
+                //}
             };
             window.MouseButtonReleased += (sender, args) => { input.PointerEvent(default, Input.PointerEventType.Up); };
             window.MouseWheelScrolled += (sender, args) =>
             {
                 input.PointerEvent(new Vector2(0, 10 * args.Delta), Input.PointerEventType.Scrolled);
             };
-            return input;
+
+            input.SetToClipboard += text =>
+            {
+                Clipboard.Contents = text;
+            };
         }
     }
 }
