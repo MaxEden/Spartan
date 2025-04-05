@@ -87,7 +87,7 @@ namespace Spartan.SFML
 
             if (customRect == CustomRect.Hoverable)
             {
-                if (Layout.HoversOver(rectDest, Layout.Get_defaultPointerPos()))
+                if (Layout.HoversOver(rectDest))
                 {
                     colorResult = color2;
                 }

@@ -5,7 +5,7 @@ public static class Elements
     public static bool DrawButton(Rect area, IBlitter blitter, Input input, string text)
     {
         var rect = Pad.Inside(area, 1);
-        var over = input.Layout.HoversOver(rect, input.Layout.Get_defaultPointerPos());
+        var over = input.Layout.HoversOver(rect);
 
         var clicked = over && input.DefaultPointer.State == Input.PointerState.GoingDown;
         
@@ -19,7 +19,7 @@ public static class Elements
     {
         var rect = Pad.Inside(area, 2);
 
-        var over = input.Layout.HoversOver(rect, input.Layout.Get_defaultPointerPos());
+        var over = input.Layout.HoversOver(rect);
         var clicked = over && input.DefaultPointer.State == Input.PointerState.GoingDown;
         var dotRect = Pad.Inside(rect, 4);
         

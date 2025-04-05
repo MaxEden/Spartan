@@ -40,14 +40,11 @@ namespace Spartan
             Scroll.Start();
         }
 
-        public Vector2 Get_defaultPointerPos()
-        {
-            return _defaultPointerPos;
-        }
-
-        public bool HoversOver(Rect rect, Vector2 _defaultPointerPos)
+        public bool HoversOver(Rect rect)
         {
             if (layer.Depth != CursorDepth) return false;
+
+            if (Scroll.FocusedId > 0) return false;
 
             if (layer.IsClipping)
             {
