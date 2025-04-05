@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spartan.Silk", "Spartan.Silk\Spartan.Silk.csproj", "{48E9C603-5820-45AA-915B-32727A81AAD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spartan.Android", "Spartan.Android\Spartan.Android.csproj", "{462CD723-6322-4F90-AFF3-FA503B7D0044}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spartan.Silk.Windows", "Spartan.Silk.Windows\Spartan.Silk.Windows.csproj", "{E73C8141-398E-4C07-9718-6B054A808AE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,16 @@ Global
 		{48E9C603-5820-45AA-915B-32727A81AAD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48E9C603-5820-45AA-915B-32727A81AAD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48E9C603-5820-45AA-915B-32727A81AAD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Release|Any CPU.Build.0 = Release|Any CPU
+		{462CD723-6322-4F90-AFF3-FA503B7D0044}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E73C8141-398E-4C07-9718-6B054A808AE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E73C8141-398E-4C07-9718-6B054A808AE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E73C8141-398E-4C07-9718-6B054A808AE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E73C8141-398E-4C07-9718-6B054A808AE1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

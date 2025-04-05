@@ -108,6 +108,8 @@ namespace Spartan
         }
 
         public Action<string> SetToClipboard;
-        
+
+        public Action<bool> OpenKeyboard;
+
     }
 }

@@ -90,6 +90,7 @@ namespace TestProgram.TestApi
                 }
 
                 DrawText();
+                input.OpenKeyboard?.Invoke(true);
                 return true;
             }
 
@@ -246,6 +247,7 @@ namespace TestProgram.TestApi
                     }
                     else if (input.InputTextEvent == Input.TextEventType.EnterPressed)
                     {
+                        input.OpenKeyboard?.Invoke(false);
                         _focusedId = 0;
                         DrawText();
                         return false;

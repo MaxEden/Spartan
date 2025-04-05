@@ -160,6 +160,4 @@ public class Inspector
         result = default;
         return false;
     }
-
-    
 }
