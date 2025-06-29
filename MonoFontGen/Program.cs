@@ -10,6 +10,7 @@ using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using Path = System.IO.Path;
 
 namespace MonoFontGen
 {
@@ -24,8 +25,8 @@ namespace MonoFontGen
             int fontW = 20;
             int fontH = 15;
             var font = fontFamily.CreateFont(20, FontStyle.Regular);
-            string defaultInput =
-                "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?\"qwertyuiop[]asdfghjkl;'zxcvbnm,./`1234567890-=~!@#$%^&*()_+|ёйцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
+           // string defaultInput =
+            //    "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?\"qwertyuiop[]asdfghjkl;'zxcvbnm,./`1234567890-=~!@#$%^&*()_+|ёйцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
 
             //==============================================
             var vals = font
@@ -40,12 +41,17 @@ namespace MonoFontGen
             int rangeStart = -1;
             int rangeEnd = -1;
 
-            void AddRange(int from, int to)
+            bool IsValid(char ch)
+            {
+                return vals.Contains(ch) && !char.IsControl(ch);
+            }
+
+            void AddRange(int from, int to,bool tight)
             {
                 for (int i = from; i < to; i++)
                 {
                     char c = (char)i;
-                    if (!vals.Contains(i) || Char.IsControl(c))
+                    if (tight && !IsValid(c))
                     {
                         if (rangeEnd >= 0)
                         {
@@ -53,7 +59,7 @@ namespace MonoFontGen
                             rangeStart = -1;
                             rangeEnd = -1;
                         }
-
+                    
                         continue;
                     }
                     else
@@ -65,23 +71,32 @@ namespace MonoFontGen
                 }
             }
 
-            AddRange(0x000, 0x100); //Latin
-            AddRange(0x370, 0x530); //Greek, Cyrilic
-            AddRange(0x25A0, 0x2600); //Geometric shapes
-            AddRange(0x2600, 0x2C60); //Misc symbols
+            //AddRange(0x000, 0x100); //Latin
+            //AddRange(0x370, 0x530); //Greek, Cyrilic
+            //AddRange(0x25A0, 0x2600); //Geometric shapes
+            //AddRange(0x2600, 0x2C60); //Misc symbols
+
+            int until = 0x530;
+            AddRange(0, until, false);
+            AddRange(until, 0x2C60, true);
 
             var input = sb.ToString();
 
             //====================================
 
             var chars = input //defaultInput
-                .Where(p => char.IsLetterOrDigit(p))
+                //.Where(p => char.IsLetterOrDigit(p))
                 .Select(p => p.ToString())
                 .ToArray();
 
             var textOptions = new TextOptions(font);
             var sizes = chars
-                .Select(p => TextMeasurer.MeasureBounds(p, textOptions))
+                .Select(p =>
+                {
+                    if (IsValid(p[0])) return TextMeasurer.MeasureBounds(p, textOptions);
+                    else return default;
+                })
+                .Where(p=>p!=default)
                 .ToArray();
 
             var widths = sizes
@@ -124,7 +139,7 @@ namespace MonoFontGen
 
 
             var image = new Image<Rgba32>(size, size);
-
+            var dictChars = new StringBuilder(); 
             image.Mutate(p =>
             {
                 p.Clear(new Color(new Rgba32(0, 0, 0, 0)));
@@ -133,14 +148,23 @@ namespace MonoFontGen
 
                 for (int i = 0; i < input.Length; i++)
                 {
-                    var rect = new RectangleF(x, y, medW, medH);
-                    //p.Fill(new Color(new Rgba32(0,0,0,0)), rect);
-
                     var ch = input[i];
-                    p.Clip(new RectangularPolygon(rect),
-                        op => { op.DrawText(ch.ToString(), font, Color.White, new PointF(x, y - minY)); });
+                    var rect = new RectangleF(x, y, medW, medH);
 
-                    //p.Draw(Color.Red, 1, rect);
+                    if (IsValid(ch))
+                    {
+                        p.Clip(new RectangularPolygon(rect),
+                            op => { op.DrawText(ch.ToString(), font, Color.White, new PointF(x, y - minY)); });
+
+                        //p.Draw(Color.Red, 1, rect);
+                        if (ch > until) dictChars.Append(ch);
+                    }
+                    
+                    if (i == 0)
+                    {
+                        p.Fill(Color.White, rect);
+                    }
+
 
                     x += medW;
 
@@ -152,14 +176,18 @@ namespace MonoFontGen
                 }
             });
 
-            image.SaveAsPng("output.png");
+            var path = "..\\..\\..\\..\\Spartan.Silk\\Resources\\mono_font";
+            path = Path.GetFullPath(path);
+            image.SaveAsPng(path+".png");
 
             var output = new StringBuilder();
             output.AppendLine(medW.ToString());
             output.AppendLine(medH.ToString());
-            output.AppendLine(input);
+            output.AppendLine(until.ToString());
+            output.AppendLine(size.ToString());
+            output.AppendLine(dictChars.ToString());
 
-            File.WriteAllText("output.txt", output.ToString());
+            File.WriteAllText(path+".txt", output.ToString());
         }
     }
 }
