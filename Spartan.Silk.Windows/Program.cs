@@ -4,8 +4,14 @@
     {
         static void Main(string[] args)
         {
-            var silkProgram = new SilkProgram();
-            silkProgram.Run();
+            var program = new TestProgram.TestProgram1();
+            var launcher = new Launcher();
+            launcher.Load = () => program.Create();
+            launcher.Draw = (blitter, input) =>
+            {
+                program.Update(blitter, input);
+            };
+            launcher.Run(1.5f);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Spartan.TestApi;
+﻿using Spartan.BasicElements;
+
+namespace Spartan.TestApi;
 
 public class EnumDropdown
 {

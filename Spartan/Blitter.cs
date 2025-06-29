@@ -15,6 +15,10 @@ public interface IBlitter
     void End();
     void BeginPopup();
     void EndPopup();
+    object LoadGraphic(string path);
+
+    void DrawGraphic(Rect rest, object graphic);
+    void DrawGraphic(Rect rest, object graphic, Color32 color1, CustomRect customRect, Color32 color2);
 }
 
 
@@ -22,7 +26,7 @@ public enum Align
 {
     Middle,
     Center,
-    TopUp
+    TopLeft
 }
 
 public enum CustomRect

@@ -23,14 +23,14 @@ public class WebBlitter : IBlitter
 
         foreach (var pointerEvent in PointerEvents)
         {
-            Input.PointerEvent(default, pointerEvent);
+            Input.PointerEvent(default, Input.PointerButton.Main, pointerEvent);
         }
 
         PointerEvents.Clear();
 
         if (!string.IsNullOrEmpty(InputString))
         {
-            Input.TextEvent(Input.TextEventType.Entered, InputString);
+            Input.TextEvent(Input.TextEventType.Typed, InputString);
             InputString = String.Empty;
         }
 
@@ -119,7 +119,7 @@ public class WebBlitter : IBlitter
         if (rectDest.Y > viewSize.Y) return;
         if (string.IsNullOrEmpty(text)) return;
 
-        DefaultTextRenderer.BuildSelection(rectDest, text, selectionStart, selectionEnd, caretPos);
+        DefaultTextRenderer.BuildSelection(rectDest,  selectionStart, selectionEnd, caretPos);
         var pos = DefaultTextRenderer.SelectPos;
 
         _writer.Write((byte)Command.TextSelection);
@@ -177,7 +177,7 @@ public class WebBlitter : IBlitter
     public void TextEntered(string str)
     {
         InputString += str;
-        TextEvents.Add(Input.TextEventType.Entered);
+        TextEvents.Add(Input.TextEventType.Typed);
     }
 
     public string InputString = String.Empty;
@@ -219,6 +219,21 @@ public class WebBlitter : IBlitter
     {
         Layout.EndPopup();
         _writer.Write((byte)Command.PopupEnd);
+    }
+
+    public object LoadGraphic(string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DrawGraphic(Rect rest, object graphic)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void DrawGraphic(Rect rest, object graphic, Color32 color1, CustomRect customRect, Color32 color2)
+    {
+        throw new NotImplementedException();
     }
 }
 

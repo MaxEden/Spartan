@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
-using TestProgram.TestApi;
+using Spartan.BasicElements;
 
 namespace Spartan.TestApi;
 
@@ -9,6 +9,8 @@ public class Inspector
     private EnumDropdown _enumDropdown;
 
     private TextFields _textFields = new TextFields();
+
+
     public void Draw(Rect area, IBlitter blitter, Input input, object target)
     {
         _textFields.ResetState();
@@ -19,12 +21,9 @@ public class Inspector
         int i = 0;
         foreach (var fieldInfo in target.GetType().GetFields())
         {
-            var row1 = new Rect(area.X, area.Y + height * i, area.Width / 2, height);
+            area.Split2(out var row1, out var row2);
 
-            blitter.DrawRect(Pad.Inside(row1, 1), Color32.white);
-
-            var row2 = new Rect(area.X + area.Width / 2, area.Y + height * i, area.Width / 2, height);
-
+            blitter.DrawRect(row1.Pad(1), Color32.white);
             blitter.DrawText(row1, fieldInfo.Name);
 
             if (fieldInfo.FieldType == typeof(bool))
@@ -51,8 +50,7 @@ public class Inspector
             {
                 var value = (Vector2)fieldInfo.GetValue(target);
 
-                var row21 = new Rect(row2.X, row2.Y, row2.Width / 2, row2.Height);
-                var row22 = new Rect(row2.X + row2.Width / 2, row2.Y, row2.Width / 2, row2.Height);
+                row2.Split2(out var row21, out var row22);
 
                 if (DrawParsable<float>(row21, blitter, input, value.X, out var result))
                 {
@@ -70,9 +68,7 @@ public class Inspector
             {
                 var value = (Vector3)fieldInfo.GetValue(target);
 
-                var row21 = new Rect(row2.X, row2.Y, row2.Width / 3, row2.Height);
-                var row22 = new Rect(row2.X + row2.Width / 3, row2.Y, row2.Width / 3, row2.Height);
-                var row23 = new Rect(row2.X + 2 * row2.Width / 3, row2.Y, row2.Width / 3, row2.Height);
+                row2.Split3(out var row21, out var row22, out var row23);
 
                 if (DrawParsable<float>(row21, blitter, input, value.X, out var result))
                 {

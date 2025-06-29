@@ -1,19 +1,24 @@
-﻿using System.Numerics;
+﻿using StbImageSharp;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using Silk.NET.OpenGLES;
 
 namespace Spartan.Silk
 {
-    class TexQuadList
+    public class TexQuadList
     {
         private TexVertex[] _array = new TexVertex[1000];
         private int[] _indices = new int[1000];
         private int _vertCount;
         private int _indCount;
         private Rect? _clipRect;
-        private Vector2 _texSize;
+        //private Vector2 _texSize;
         private Vector2 _invSize;
         private Rect _solidRect;
         private Vector2 _posShift;
+
+        private Quad[] _quads = new Quad[50];
+        private int _quadCount;
 
         public bool Clip(Rect clipRect, ref Rect rect, ref Rect uvRect)
         {
@@ -21,6 +26,11 @@ namespace Spartan.Silk
             if (rect.xMin > clipRect.xMax) return false;
             if (rect.yMax < clipRect.yMin) return false;
             if (rect.yMin > clipRect.yMax) return false;
+
+            if (clipRect.Contains(rect))
+            {
+                return true;
+            }
 
             var newRect = Rect.MinMaxRect(
                 MathF.Max(clipRect.xMin, rect.xMin),
@@ -54,7 +64,7 @@ namespace Spartan.Silk
 
         public void Init(Vector2 texSize, Rect solidRect)
         {
-            _texSize = texSize;
+            //_texSize = texSize;
             _invSize = new Vector2(1f / texSize.X, 1f / texSize.Y);
             _solidRect = solidRect;
         }
@@ -125,10 +135,72 @@ namespace Spartan.Silk
             _indCount += 6;
         }
 
+        public void AddGraphic(STexture texture,  Rect rect, Color32 color)
+        {
+            AddGraphic(texture, new Rect(Vector2.Zero, texture.Size), rect, color);
+        }
+
+        public void AddGraphic(STexture texture , Rect from, Rect rect, Color32 color)
+        {
+            if(texture.TexID == 0) return;
+
+            rect.X += _posShift.X;
+            rect.Y += _posShift.Y;
+
+            if (_clipRect.HasValue)
+            {
+                if (!Clip(_clipRect.Value, ref rect, ref from)) return;
+            }
+
+            if (_quadCount + 1 >= _quads.Length)
+            {
+                Array.Resize(ref _quads, _quads.Length * 2 + 4);
+            }
+
+            var quad = new Quad();
+
+            quad.TexID = texture.TexID;
+
+            var invSize = texture.InvSize;
+
+            quad.TexVertex1 = new TexVertex()
+            {
+                Color = color.ToFloat(),
+                Position = new Vector2(rect.X, rect.Y),
+                Uv = new Vector2(from.X, from.Y) * invSize
+            };
+            quad.TexVertex2 = new TexVertex()
+            {
+                Color = color.ToFloat(),
+                Position = new Vector2(rect.X, rect.Y + rect.Height),
+                Uv = new Vector2(from.X, from.Y + from.Height) * invSize
+            };
+            quad.TexVertex3 = new TexVertex()
+            {
+                Color = color.ToFloat(),
+                Position = new Vector2(rect.X + rect.Width, rect.Y + rect.Height),
+                Uv = new Vector2(from.X + from.Width, from.Y + from.Height) * invSize
+            };
+            quad.TexVertex4 = new TexVertex()
+            {
+                Color = color.ToFloat(),
+                Position = new Vector2(rect.X + rect.Width, rect.Y),
+                Uv = new Vector2(from.X + from.Width, from.Y) * invSize
+            };
+            _quads[_quadCount] = quad;
+            _quadCount += 1;
+        }
+
         public void Clear()
         {
             _vertCount = 0;
             _indCount = 0;
+            _quadCount = 0;
+        }
+
+        public ReadOnlySpan<Quad> GetQuadsSpan()
+        {
+            return new ReadOnlySpan<Quad>(_quads, 0, _quadCount);
         }
 
         public ReadOnlySpan<TexVertex> GetVertexSpan()
@@ -162,6 +234,16 @@ namespace Spartan.Silk
             _posShift = default;
             EndClip();
         }
+
+        public static int[] QuadIndexes = new int[6]
+        {
+            0,
+            1,
+            2,
+            0,
+            2,
+            3
+        };
     }
     
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -170,5 +252,52 @@ namespace Spartan.Silk
         public Vector2 Position;
         public ColorF Color;
         public Vector2 Uv;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct Quad
+    {
+        public uint TexID;
+        public TexVertex TexVertex1;
+        public TexVertex TexVertex2;
+        public TexVertex TexVertex3;
+        public TexVertex TexVertex4;
+    }
+
+    public class STexture
+    {
+        public uint TexID;
+        public Vector2 Size;
+        public Vector2 InvSize;
+        public ImageResult LoadResult;
+        public Task Task;
+        public byte[] Bytes;
+        public string Path;
+
+        public unsafe void FinishLoad(GL gl)
+        {
+            var font = LoadResult;
+            var fontTex = gl.GenTexture();
+            gl.BindTexture(TextureTarget.Texture2D, fontTex);
+            fixed (byte* ptr = font.Data)
+            {
+                gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba,
+                    (uint)font.Width, (uint)font.Height,
+                    0, PixelFormat.Rgba, PixelType.UnsignedByte, ptr);
+            }
+
+            gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            var fontSize = new Vector2(font.Width, font.Height);
+
+            gl.BindTexture(TextureTarget.Texture2D, 0);
+
+            TexID = fontTex;
+            Size = fontSize;
+            InvSize = new Vector2(1f / fontSize.X, 1f / fontSize.Y);
+        }
     }
 }

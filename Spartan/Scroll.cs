@@ -26,19 +26,21 @@ public class Scroll
         Height = height;
         ScrollPos = scrollPos;
 
-        if (IsActive && input.DefaultPointer.State == Input.PointerState.GoingUp)
+        if (IsActive && input.Pointer.State == PointerState.GoingUp)
         {
             FocusedId = 0;
         }
 
 
         var maxShift = height - area.Height;
+        if (maxShift < 0) maxShift = 0;
+
         var scrollHeight = area.Height * (area.Height / height);
         var scrollHole = area.Height - scrollHeight;
 
         if (IsActive)
         {
-            var pickY = input.DefaultPointer.Position.Y - _pickShift;
+            var pickY = input.Pointer.Position.Y - _pickShift;
             var diff = pickY - area.Y;
             diff = Math.Clamp(diff, 0, scrollHole);
 
@@ -70,7 +72,7 @@ public class Scroll
             }
             else
             {
-                if (ScrollRect.Contains(input.DefaultPointer.Position))
+                if (ScrollRect.Contains(input.Pointer.Position))
                 {
                     IsHovered = true;
                     Color = new ColorF(0, 0, 0, 0.4f);
@@ -84,21 +86,21 @@ public class Scroll
 
         if (IsHovered)
         {
-            if (input.DefaultPointer.State == Input.PointerState.GoingDown)
+            if (input.Pointer.State == PointerState.GoingDown)
             {
                 FocusedId = _uk;
-                _pickShift = input.DefaultPointer.Position.Y -ScrollRect.position.Y;
+                _pickShift = input.Pointer.Position.Y -ScrollRect.position.Y;
             }
         }
 
-        if(input.Layout.layer.Depth == input.Layout.CursorDepth && area.Contains(input.DefaultPointer.Position))
+        if(input.Layout.layer.Depth == input.Layout.CursorDepth && area.Contains(input.Pointer.Position))
         {
-            if (input.DefaultPointer.ScrollDelta != 0)
+            if (input.Pointer.ScrollDelta != 0)
             {
-                ScrollPos -= input.DefaultPointer.ScrollDelta;
+                ScrollPos -= input.Pointer.ScrollDelta;
                 ScrollPos = Math.Clamp(ScrollPos, 0, maxShift);
 
-                input.DefaultPointer.ScrollDelta = 0;
+                input.Pointer.ScrollDelta = 0;
 
                 return ScrollPos;
             }

@@ -1,9 +1,6 @@
-﻿using Spartan;
-using Spartan.TestApi;
-
-namespace TestProgram.TestApi
+﻿namespace Spartan.BasicElements
 {
-    internal class TextFields
+    public class TextFields
     {
         public string InputBuffer => _inputBuffer;
 
@@ -44,22 +41,25 @@ namespace TestProgram.TestApi
             _selectionInProgress = false;
         }
 
+        public bool EnterPressed { get; private set; }
         public bool DrawInput(Rect area, IBlitter blitter, Input input, string value)
         {
             _stateId++;
+            EnterPressed = false;
 
-            area = Pad.Inside(area, 1);
+            area = area.Pad(1);
             var focused = _focusedId == _stateId;
-            var pointer = input.DefaultPointer.Position;
-            var over = area.Contains(pointer);
-            var clicked = over && input.DefaultPointer.State == Input.PointerState.GoingDown;
+            var pointer = input.Pointer.Position;
+
+            var over = input.Layout.HoversOver(area);
+            var clicked = over && input.Pointer.State == PointerState.GoingDown;
 
             void DrawText()
             {
                 var focused = _focusedId == _stateId;
 
                 if (focused) blitter.DrawRect(area, Color32.gray);
-                else blitter.DrawRect(area, Color32.green, CustomRect.Hoverable, Color32.blue);
+                else blitter.DrawRect(area, Color32.green, CustomRect.Hoverable, Color32.green.Lighter(200));
 
                 if (focused)
                 {
@@ -71,8 +71,7 @@ namespace TestProgram.TestApi
                     blitter.DrawText(area, value);
                 }
             }
-
-
+            
             if (clicked && !focused)
             {
                 _focusedId = _stateId;
@@ -107,7 +106,7 @@ namespace TestProgram.TestApi
                     }
                 }
 
-                if (input.DefaultPointer.State == Input.PointerState.Down && _selectionInProgress)
+                if (input.Pointer.State == PointerState.Down && _selectionInProgress)
                 {
                     _caretPos = blitter.GetCaretPos(area, _inputBuffer, pointer);
 
@@ -117,12 +116,12 @@ namespace TestProgram.TestApi
                     }
                 }
 
-                if (input.DefaultPointer.State == Input.PointerState.GoingUp)
+                if (input.Pointer.State == PointerState.GoingUp)
                 {
                     _selectionInProgress = false;
                 }
 
-                if (input.InputTextEvent == Input.TextEventType.Entered && input.InputText != string.Empty)
+                if (input.InputTextEvent == Input.TextEventType.Typed && input.InputText != string.Empty)
                 {
                     if (string.IsNullOrEmpty(_inputBuffer))
                     {
@@ -185,7 +184,7 @@ namespace TestProgram.TestApi
                     }
                     else if (input.InputTextEvent == Input.TextEventType.Left)
                     {
-                        if (input.InputShift)
+                        if (input.Shift)
                         {
                             if (_caretPos > 0)
                             {
@@ -216,7 +215,7 @@ namespace TestProgram.TestApi
                     }
                     else if (input.InputTextEvent == Input.TextEventType.Right)
                     {
-                        if (input.InputShift)
+                        if (input.Shift)
                         {
                             if (_caretPos < _inputBuffer.Length)
                             {
@@ -249,8 +248,9 @@ namespace TestProgram.TestApi
                     {
                         input.OpenKeyboard?.Invoke(false);
                         _focusedId = 0;
+                        EnterPressed = true;
                         DrawText();
-                        return false;
+                        return true;
                     }
                     else if (input.InputTextEvent == Input.TextEventType.Copy)
                     {
@@ -273,6 +273,31 @@ namespace TestProgram.TestApi
         public void ResetState()
         {
             _stateId = 0;
+        }
+
+        public void ResetFocus()
+        {
+            _focusedId = 0;
+        }
+
+        public void TakeFocus(string value)
+        {
+            var focusId = _stateId + 1;
+            if(focusId == _focusedId)  return;
+
+            _focusedId = focusId;
+            _inputBuffer = value;
+            _selectionFist = 0;
+            if (string.IsNullOrEmpty(value))
+            {
+                _selectionSecond = 0;
+                _caretPos = 0;
+            }
+            else
+            {
+                _selectionSecond = value.Length;
+                _caretPos = value.Length;
+            }
         }
     }
 }

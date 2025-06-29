@@ -11,13 +11,9 @@ namespace TestProgram
         private DebugConsole console;
         private Menu menu;
         private EnumDropdown enumDrop;
-        public IBlitter blitter { get; set; }
-        public Input input { get; } = new Input();
-        public Vector2 viewSize => input.Layout.ViewSize;
 
         public void Create()
         {
-
             menu = new Menu("File", "Edit", "View", "Project", "Debug", "Window", "Help");
             menu.Add("New", "Open", "Save", "Save as", "Quit");
 
@@ -31,9 +27,9 @@ namespace TestProgram
             enumDrop.Selected = o => { };
         }
 
-        public void Update()
+        public void Update(IBlitter blitter, Input input)
         {
-            blitter.Begin();
+            var viewSize = input.Layout.ViewSize;
 
             blitter.DrawRect(new Rect(0, 0, (int)viewSize.X, (int)viewSize.Y), Color32.blue);
 
@@ -44,8 +40,7 @@ namespace TestProgram
             console.Draw(new Rect(0, viewSize.Y - 100, viewSize.X, 100), blitter);
 
             //enumDrop.Draw(blitter, input);
-            blitter.End();
-            input.PostStep();
+
         }
     }
 }

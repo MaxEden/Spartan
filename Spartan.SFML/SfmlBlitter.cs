@@ -232,6 +232,21 @@ namespace Spartan.SFML
             Layout.EndPopup();
             render = _defaultWindow;
         }
+
+        public object LoadGraphic(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DrawGraphic(Rect rest, object graphic)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DrawGraphic(Rect rest, object graphic, Color32 color1, CustomRect customRect, Color32 color2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

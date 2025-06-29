@@ -1,4 +1,6 @@
-﻿namespace Spartan.TestApi;
+﻿using Spartan.BasicElements;
+
+namespace Spartan.TestApi;
 
 public class DebugConsole
 {
@@ -20,7 +22,7 @@ public class DebugConsole
 
             var rect = new Rect(area.X, area.Y + height * i, area.Width, height);
 
-            blitter.DrawRect(Pad.Inside(rect, 1), new ColorF(1f, 0.7f, 0.7f, 1));
+            blitter.DrawRect(rect.Pad(1), new ColorF(1f, 0.7f, 0.7f, 1));
 
             blitter.DrawText(rect, Lines[Lines.Count - i - 1]);
         }

@@ -74,7 +74,7 @@ class Connection
             {
                 case TextEventType.None:
                     break;
-                case TextEventType.Entered:
+                case TextEventType.Typed:
                     int count = reader.ReadByte();
                     var bytes = new byte[count];
                     var read = reader.Read(bytes, 0, count);

@@ -2,9 +2,9 @@
 
 namespace Spartan.Silk
 {
-    internal class SilkBlitter : IBlitter
+    public class SilkBlitter : IBlitter
     {
-        public Input Input;
+        private Input Input { get; set; }
         public Layout Layout => Input.Layout;
 
         private Vector2 viewSize => Layout.ViewSize;
@@ -16,22 +16,23 @@ namespace Spartan.Silk
         private TexQuadList _layer;
 
         public DefaultTextRenderer DefaultTextRenderer = new();
-        private readonly Vector2 _fontSize;
+        private readonly Vector2 _fontAtlasSize;
 
-        public SilkBlitter(Vector2 fontSize)
+        public Func<string, STexture> LoadTexture;
+
+        public SilkBlitter(Vector2 fontAtlasSize, Input input)
         {
-            _fontSize = fontSize;
-            _mainLayer.Init(_fontSize, new Rect(98, 2, 1, 1));
-            _popupLayer.Init(_fontSize, new Rect(98, 2, 1, 1));
+            Input = input;
+            _fontAtlasSize = fontAtlasSize;
+            _mainLayer.Init(_fontAtlasSize, new Rect(98, 2, 1, 1));
+            _popupLayer.Init(_fontAtlasSize, new Rect(98, 2, 1, 1));
         }
         public void Begin()
         {
             _layer = _mainLayer;
             _mainLayer.Clear();
             _popupLayer.Clear();
-
-          
-
+            
             Layout.ViewSize = viewSize;
             var defaultArea = new Rect(0, 0, viewSize.X, viewSize.Y);
             Layout.Start(defaultArea, Input);
@@ -83,10 +84,18 @@ namespace Spartan.Silk
         public void DrawSelection(Rect rectDest, string text, int selectionStart, int selectionEnd, int caretPos)
         {
             if (rectDest.Y > viewSize.Y) return;
-            if (string.IsNullOrEmpty(text)) return;
 
-            DefaultTextRenderer.BuildSelection(rectDest, text, selectionStart, selectionEnd, caretPos);
+            DefaultTextRenderer.BuildSelection(rectDest, selectionStart, selectionEnd, caretPos);
 
+            if (string.IsNullOrEmpty(text))
+            {
+                if (DefaultTextRenderer.CoursorRect.HasValue)
+                {
+                    DrawRect(DefaultTextRenderer.CoursorRect.Value, Color32.yellow);
+                }
+                return;
+            }
+            
             var pos = DefaultTextRenderer.SelectPos;
 
             if (DefaultTextRenderer.SelectRect.HasValue)
@@ -163,6 +172,33 @@ namespace Spartan.Silk
         {
             Layout.EndPopup();
             _layer = _mainLayer;
+        }
+
+        public object LoadGraphic(string path)
+        {
+            return LoadTexture(path);
+        }
+
+        public void DrawGraphic(Rect rest, object graphic)
+        {
+            _layer.AddGraphic((STexture)graphic, rest, Color32.white);
+            Layout.TryAddMask(rest);
+        }
+
+        public void DrawGraphic(Rect rest, object graphic, Color32 color1, CustomRect customRect, Color32 color2)
+        {
+            var colorResult = color1;
+            if (customRect == CustomRect.Hoverable)
+            {
+                if (Layout.HoversOver(rest))
+                {
+                    colorResult = color2;
+                }
+            }
+
+            _layer.AddGraphic((STexture)graphic, rest, colorResult);
+
+            Layout.TryAddMask(rest);
         }
     }
 }

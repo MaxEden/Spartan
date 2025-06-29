@@ -14,6 +14,7 @@ namespace Spartan
         public Rect[] GliphsFrom = new Rect[DefaultGliphCount];
         public Vector2[] GliphsTo = new Vector2[DefaultGliphCount];
         public ushort[] GliphsIndexes = new ushort[DefaultGliphCount];
+        
         private byte[] _textBytes = new byte[1000];
 
         public Vector2 SelectPos;
@@ -46,20 +47,26 @@ namespace Spartan
                     pos = new Vector2(
                         rectDest.X + (rectDest.Width - charW * text.Length) / 2,
                         rectDest.Y + (rectDest.Height - charH) / 2);
+                    pos.X = MathF.Round(pos.X);
+                    pos.Y = MathF.Round(pos.Y);
                     break;
-                case Align.TopUp:
+                case Align.TopLeft:
                     pos = new Vector2(rectDest.X, rectDest.Y);
+                    pos.X = MathF.Round(pos.X);
+                    pos.Y = MathF.Round(pos.Y);
                     break;
                 case Align.Middle:
                 default:
                     pos = new Vector2(rectDest.X + 2, rectDest.Y + (rectDest.Height - charH) / 2);
+                    pos.X = MathF.Round(pos.X);
+                    pos.Y = MathF.Round(pos.Y);
                     break;
             }
 
             return pos;
         }
 
-        public void BuildSelection(Rect rectDest, string text, int selectionStart, int selectionEnd, int caretPos)
+        public void BuildSelection(Rect rectDest, int selectionStart, int selectionEnd, int caretPos)
         {
             var pos = new Vector2(rectDest.X + 2, rectDest.Y + (rectDest.Height - charH) / 2);
             SelectPos = pos;

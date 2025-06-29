@@ -24,7 +24,7 @@ namespace Spartan
 
         public void Start(Rect defaultArea, Input input)
         {
-            _defaultPointerPos = input.DefaultPointer.Position;
+            _defaultPointerPos = input.Pointer.Position;
             _defaultArea = defaultArea;
 
             CursorDepth = 0;
@@ -40,6 +40,20 @@ namespace Spartan
             Scroll.Start();
         }
 
+        public Vector2 LocalPointerPosition
+        {
+            get
+            {
+                if (layer.IsClipping)
+                {
+                    return _defaultPointerPos - layer.ClipInnerArea.position;
+                }
+                else
+                {
+                    return _defaultPointerPos;
+                }
+            }
+        }
         public bool HoversOver(Rect rect)
         {
             if (layer.Depth != CursorDepth) return false;

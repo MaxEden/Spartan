@@ -79,14 +79,14 @@ namespace Spartan.SFML
 
                     if (ch == '\t')
                     {
-                        input.TextEvent(Input.TextEventType.Entered, "\t");
+                        input.TextEvent(Input.TextEventType.Typed, "\t");
                         return;
                     }
 
                     if (char.IsControl(ch)) return;
                 }
 
-                input.TextEvent(Input.TextEventType.Entered, eventArgs.Unicode);
+                input.TextEvent(Input.TextEventType.Typed, eventArgs.Unicode);
             };
             window.KeyPressed += (sender, eventArgs) =>
             {
@@ -104,7 +104,7 @@ namespace Spartan.SFML
 
                     if (!string.IsNullOrEmpty(content))
                     {
-                        input.TextEvent(Input.TextEventType.Entered, content);
+                        input.TextEvent(Input.TextEventType.Typed, content);
                     }
                 }
 
