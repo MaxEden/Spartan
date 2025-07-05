@@ -3,10 +3,10 @@
 public struct Stack
 {
     private float _lineHeight;
-    private Rect _area;
-    private int _line;
-    private int _padding;
-    public int Indent;
+    private Rect  _area;
+    private int   _line;
+    private int   _padding;
+    public  int   Indent;
 
     public void Begin(Rect area, float lineHeight, int padding)
     {
@@ -18,14 +18,18 @@ public struct Stack
 
     public Rect GetLine()
     {
-        var rect=  new Rect(_area.X + _padding + Indent * _lineHeight,
+        var rect = new Rect(_area.X + _padding + Indent * _lineHeight,
             _area.Y + _line * (_lineHeight + _padding),
-            _area.Width - 2 * _padding - Indent * _lineHeight, 
+            _area.Width - 2 * _padding - Indent * _lineHeight,
             _lineHeight);
         _line++;
         return rect;
     }
 
+    public float GetHeight(int count)
+    {
+        return (_lineHeight + _padding) * count;
+    }
 
     public Rect GetLines(int count)
     {

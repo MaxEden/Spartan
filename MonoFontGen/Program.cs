@@ -19,14 +19,23 @@ namespace MonoFontGen
         static void Main(string[] args)
         {
             var fontName = "Hack"; //args[0];
+            //fontName = "Iosevka Fixed SS04 Light";
+            fontName = "Iosevka Fixed SS05";
+            //fontName = "Iosevka Fixed Curly Slab";
+            //fontName = "Consolas";
+
             var fontFamily =
                 SystemFonts.Families.First(p => p.Name.Contains(fontName, StringComparison.OrdinalIgnoreCase));
 
-            int fontW = 20;
-            int fontH = 15;
-            var font = fontFamily.CreateFont(20, FontStyle.Regular);
-           // string defaultInput =
-            //    "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?\"qwertyuiop[]asdfghjkl;'zxcvbnm,./`1234567890-=~!@#$%^&*()_+|ёйцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
+            int fontSize = 20;
+            fontSize = 18;
+            fontSize = 14;
+            fontSize = 15;
+            fontSize = 16;
+
+            var font = fontFamily.CreateFont(fontSize, FontStyle.Regular);
+            string defaultInput =
+                "QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?\"qwertyuiop[]asdfghjkl;'zxcvbnm,./`1234567890-=~!@#$%^&*()_+|ёйцукенгшщзхъфывапролджэячсмитьбю.ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ,";
 
             //==============================================
             var vals = font
@@ -89,32 +98,41 @@ namespace MonoFontGen
                 .Select(p => p.ToString())
                 .ToArray();
 
-            var textOptions = new TextOptions(font);
-            var sizes = chars
+            var textOptions = new TextOptions(font)
+            {
+                //KerningMode = KerningMode.Standard, 
+                //HintingMode = HintingMode.Standard,
+                //HorizontalAlignment = HorizontalAlignment.Left,
+                //VerticalAlignment = VerticalAlignment.Top,
+                //Origin = new PointF(0, 0),
+            }; 
+            
+            var rects = defaultInput
                 .Select(p =>
                 {
-                    if (IsValid(p[0])) return TextMeasurer.MeasureBounds(p, textOptions);
+                    if (IsValid(p)) return TextMeasurer.MeasureBounds(p.ToString(), textOptions);
                     else return default;
                 })
                 .Where(p=>p!=default)
                 .ToArray();
 
-            var widths = sizes
-                .Select(p => p.X + p.Width)
-                .ToArray();
+            var xMin = rects.Select(p => p.Left).ToArray();
+            var xMax = rects.Select(p => p.Right).ToArray();
 
-            Array.Sort(widths);
-            var medW = (int)widths[widths.Length / 2] + 1;
+            Array.Sort(xMin);
+            Array.Sort(xMax);
 
-            var heights = sizes
-                .Select(p => p.Y + p.Height)
-                .ToArray();
+            var medW = (int)(xMax[xMax.Length / 2] - xMin[xMin.Length / 2]) + 3;
 
-            var maxY = (int)heights.Max();
-            var minY = (int)(sizes.Select(p => p.Y).Min() - 1);
+            medW = (int)(xMax.Last() - xMin.First());
 
+            var yMin = rects.Select(p => p.Top).ToArray();
+            var yMax = rects.Select(p => p.Bottom).ToArray();
 
-            var medH = (int)MathF.Max(heights.Max(), maxY) + 1 + 1;
+            Array.Sort(yMin);
+            Array.Sort(yMax);
+
+            var medH = (int)( yMax.Last() - yMin.First()) + 2;//(int)(yMax[yMax.Length / 2] - yMin[yMin.Length / 2])+2;// + 10;
 
             Console.WriteLine(medW);
             Console.WriteLine(medH);
@@ -136,10 +154,11 @@ namespace MonoFontGen
                     break;
                 }
             }
-
-
+            
             var image = new Image<Rgba32>(size, size);
-            var dictChars = new StringBuilder(); 
+            var dictChars = new StringBuilder();
+            var brush = new SolidBrush(Color.White);
+
             image.Mutate(p =>
             {
                 p.Clear(new Color(new Rgba32(0, 0, 0, 0)));
@@ -154,7 +173,14 @@ namespace MonoFontGen
                     if (IsValid(ch))
                     {
                         p.Clip(new RectangularPolygon(rect),
-                            op => { op.DrawText(ch.ToString(), font, Color.White, new PointF(x, y - minY)); });
+                            op =>
+                            {
+                                var str = ch.ToString();
+                                var color = Color.White;
+                                var pos = new PointF(x, y + 2);
+                                op.DrawText(str, font, color, pos);
+                            
+                            });
 
                         //p.Draw(Color.Red, 1, rect);
                         if (ch > until) dictChars.Append(ch);
@@ -188,6 +214,7 @@ namespace MonoFontGen
             output.AppendLine(dictChars.ToString());
 
             File.WriteAllText(path+".txt", output.ToString());
+            Console.WriteLine("Done "+ path);
         }
     }
 }

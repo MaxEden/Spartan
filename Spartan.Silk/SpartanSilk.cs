@@ -222,7 +222,10 @@ namespace Spartan.Silk
             _gl = gl;
 
             //_blitter = new SilkBlitter(_fontTexture.Size, _input);
-            _blitter = new SilkBlitter(_monofontTexture.Size, _input);
+            _blitter = new SilkBlitter(
+                _monofontTexture.Size,
+                Resources.AsString("mono_font.txt"),
+                _input);
             _blitter.LoadTexture = LoadTexture;
             return _blitter;
         }

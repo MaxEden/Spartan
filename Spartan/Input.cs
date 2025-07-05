@@ -1,17 +1,17 @@
-﻿using System.Numerics;
+using System.Numerics;
 using static Spartan.Input;
 
 namespace Spartan
 {
     public class Input
     {
-        public readonly Pointer Pointer = new Pointer();
-        public readonly DragNDrop DragNDrop = new DragNDrop();
+        public readonly Pointer       Pointer       = new Pointer();
+        public readonly DragNDrop     DragNDrop     = new DragNDrop();
+        public readonly DoubleClicker DoubleClicker = new DoubleClicker();
 
         public void PostStep()
         {
             UpdateDragNDrop();
-
 
             NextState(ref Pointer.State);
             NextState(ref Pointer.AltState);
@@ -19,6 +19,8 @@ namespace Spartan
             InputTextEvent = TextEventType.None;
             InputText = string.Empty;
             Shift = false;
+
+            DoubleClicker.Clear();
 
             // DefaultPointer.ScrollDelta = default;
         }
@@ -42,7 +44,7 @@ namespace Spartan
                 DragNDrop.IsDragging = true;
                 return;
             }
-            
+
             if (DragNDrop.IsDragging)
             {
                 if (Pointer.State == PointerState.GoingUp)
@@ -95,12 +97,27 @@ namespace Spartan
                     Pointer.AltState = PointerState.None;
                     break;
                 case PointerEventType.Down:
-                    if (button == PointerButton.Main) Pointer.State = PointerState.GoingDown;
-                    else Pointer.AltState = PointerState.GoingDown;
+                    if (button == PointerButton.Main)
+                    {
+                        Pointer.State = PointerState.GoingDown;
+                    }
+                    else
+                    {
+                        Pointer.AltState = PointerState.GoingDown;
+                    }
+
                     break;
                 case PointerEventType.Up:
-                    if (button == PointerButton.Main) Pointer.State = PointerState.GoingUp;
-                    else Pointer.AltState = PointerState.GoingUp;
+                    if (button == PointerButton.Main)
+                    {
+                        Pointer.State = PointerState.GoingUp;
+                        DoubleClicker.ProcessDoubleClick(position);
+                    }
+                    else
+                    {
+                        Pointer.AltState = PointerState.GoingUp;
+                    }
+
                     break;
                 case PointerEventType.Scrolled:
                     Pointer.ScrollDelta = position.Y;
@@ -109,6 +126,7 @@ namespace Spartan
                     throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
             }
         }
+
 
         public enum PointerEventType : byte
         {
@@ -144,6 +162,7 @@ namespace Spartan
         public bool Ctrl { get; set; }
 
         public Layout Layout = new Layout();
+
         public void TextEvent(TextEventType eventType, string inputText)
         {
             if (eventType == TextEventType.Typed && !string.IsNullOrEmpty(inputText))
@@ -155,19 +174,33 @@ namespace Spartan
         }
 
         public Action<string> SetToClipboard;
-        public Action<bool> OpenKeyboard;
+        public Action<bool>   OpenKeyboard;
+
+
         public bool ClickOver(Rect rect)
         {
             return Layout.HoversOver(rect) && Pointer.State == PointerState.GoingDown;
         }
+
         public bool ReleaseOver(Rect rect)
         {
             return Layout.HoversOver(rect) && Pointer.State == PointerState.GoingUp;
         }
+
         public bool ClickOutside(Rect area)
         {
             return !Layout.HoversOver(area) && Layout.Scroll.FocusedId == 0 && Pointer.State == PointerState.GoingDown;
         }
+
+        public bool DoubleClickOver(Rect rect)
+        {
+            bool isOver = Layout.HoversOver(rect) &&
+                          Pointer.State == PointerState.GoingUp &&
+                          DoubleClicker.IsDoubleClick();
+            return isOver;
+        }
+
+
     }
 
     public enum PointerState
@@ -181,7 +214,7 @@ namespace Spartan
 
     public class Pointer
     {
-        public Vector2 Position;
+        public Vector2      Position;
         public PointerState State;
         public PointerState AltState;
 

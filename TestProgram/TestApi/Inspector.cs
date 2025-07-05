@@ -11,7 +11,7 @@ public class Inspector
     private TextFields _textFields = new TextFields();
 
 
-    public void Draw(Rect area, IBlitter blitter, Input input, object target)
+    public void Draw(Rect fullArea, IBlitter blitter, Input input, object target)
     {
         _textFields.ResetState();
 
@@ -19,8 +19,12 @@ public class Inspector
         var textHeight = blitter.GetTextLineSize("Test").Y;
         float height = textHeight + 6;
         int i = 0;
+        var stack = new Stack();
+        stack.Begin(fullArea, height, 1);
+
         foreach (var fieldInfo in target.GetType().GetFields())
         {
+            var area = stack.GetLine();
             area.Split2(out var row1, out var row2);
 
             blitter.DrawRect(row1.Pad(1), Color32.white);
@@ -125,7 +129,7 @@ public class Inspector
 
             if (methodInfo.ReturnType == typeof(void))
             {
-                var row1 = new Rect(area.X, area.Y + height * i, area.Width, height);
+                var row1 = stack.GetLine();
                 if (Elements.DrawButton(row1, blitter, input, methodInfo.Name))
                 {
                     methodInfo.Invoke(target, null);

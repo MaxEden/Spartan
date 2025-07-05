@@ -35,12 +35,11 @@ namespace TestProgram
 
             menu.Draw(new Rect(0, 0, viewSize.X, 20), blitter, input);
 
-            inpector.Draw(new Rect(viewSize.X - 200, 40, 200, viewSize.Y), blitter, input, testObj);
+            inpector.Draw(new Rect(viewSize.X - 350, 40, 350, viewSize.Y), blitter, input, testObj);
 
             console.Draw(new Rect(0, viewSize.Y - 100, viewSize.X, 100), blitter);
 
-            //enumDrop.Draw(blitter, input);
-
+            enumDrop.Draw(blitter, input);
         }
     }
 }

@@ -15,17 +15,19 @@ namespace Spartan.Silk
         private TexQuadList _popupLayer = new();
         private TexQuadList _layer;
 
-        public DefaultTextRenderer DefaultTextRenderer = new();
+        //public DefaultTextRenderer DefaultTextRenderer = new();
+        MonoTextRenderer         DefaultTextRenderer = new();
         private readonly Vector2 _fontAtlasSize;
 
         public Func<string, STexture> LoadTexture;
 
-        public SilkBlitter(Vector2 fontAtlasSize, Input input)
+        public SilkBlitter(Vector2 fontAtlasSize, string fontText, Input input)
         {
             Input = input;
             _fontAtlasSize = fontAtlasSize;
-            _mainLayer.Init(_fontAtlasSize, new Rect(98, 2, 1, 1));
-            _popupLayer.Init(_fontAtlasSize, new Rect(98, 2, 1, 1));
+            DefaultTextRenderer.Load(fontText);
+            _mainLayer.Init(_fontAtlasSize, new Rect(1, 1, 1, 1));
+            _popupLayer.Init(_fontAtlasSize, new Rect(1, 1, 1, 1));
         }
         public void Begin()
         {
@@ -103,7 +105,7 @@ namespace Spartan.Silk
                 DrawRectRaw(DefaultTextRenderer.SelectRect.Value, Color32.blue);
             }
 
-            DefaultTextRenderer.BuildGliphRects(pos, text);
+            DefaultTextRenderer.BuildGliphRects(pos, text, rectDest);
 
             for (int i = 0; i < DefaultTextRenderer.GliphCount; i++)
             {
@@ -131,7 +133,7 @@ namespace Spartan.Silk
             if (string.IsNullOrEmpty(text)) return;
 
             Vector2 pos = DefaultTextRenderer.GetTextPosition(rectDest, text, align);
-            DefaultTextRenderer.BuildGliphRects(pos, text);
+            DefaultTextRenderer.BuildGliphRects(pos, text, rectDest);
 
             for (int i = 0; i < DefaultTextRenderer.GliphCount; i++)
             {

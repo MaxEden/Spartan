@@ -11,7 +11,7 @@
             {
                 program.Update(blitter, input);
             };
-            launcher.Run(1.5f);
+            launcher.Run(1);
         }
     }
 }
